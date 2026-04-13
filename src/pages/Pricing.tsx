@@ -35,9 +35,9 @@ const PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '4,99€',
+    price: '7,99€',
     period: '/mese',
-    credits: '20 crediti/giorno',
+    credits: '15 crediti/giorno',
     icon: Crown,
     color: 'text-emerald-400',
     border: 'border-emerald-500/50',
@@ -63,9 +63,9 @@ const PLANS = [
   {
     id: 'max',
     name: 'Max',
-    price: '9,99€',
+    price: '14,99€',
     period: '/mese',
-    credits: 'Crediti illimitati',
+    credits: '50 crediti/giorno',
     icon: Infinity,
     color: 'text-purple-400',
     border: 'border-purple-500/50',

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Clock, Calendar as CalendarIcon, Plus, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Clock, Calendar as CalendarIcon, Plus, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -15,13 +15,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 interface Lesson {
   id: string;
   name: string;
   room: string;
   day: number;
-  start: number;
+  start_hour: number;
   duration: number;
   color: string;
 }
@@ -38,33 +40,51 @@ const COLORS = [
 ];
 
 export default function Timetable() {
-  const [lessons, setLessons] = useLocalStorage<Lesson[]>('illuminahub_lessons', []);
+  const { user } = useAuth();
   const [workspaces] = useLocalStorage<string[]>('illuminahub_workspaces', []);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [newLesson, setNewLesson] = useState<Partial<Lesson>>({
-    day: 1,
-    start: 9,
-    duration: 2
-  });
+  const [newLesson, setNewLesson] = useState<Partial<Lesson>>({ day: 1, start_hour: 9, duration: 2 });
 
-  const handleAddLesson = () => {
+  useEffect(() => {
+    if (!user) return;
+    const fetchLessons = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('lessons')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('day', { ascending: true });
+      if (!error) setLessons(data || []);
+      setLoading(false);
+    };
+    fetchLessons();
+  }, [user]);
+
+  const handleAddLesson = async () => {
     if (!newLesson.name) return;
-    const lesson: Lesson = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: newLesson.name!,
+    const row = {
+      user_id: user!.id,
+      name: newLesson.name,
       room: newLesson.room || 'Aula TBD',
       day: Number(newLesson.day),
-      start: Number(newLesson.start),
-      duration: Number(newLesson.duration),
+      start_hour: Number(newLesson.start_hour),
+      duration: Number(newLesson.duration) || 2,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
     };
-    setLessons([...lessons, lesson]);
+    const { data, error } = await supabase.from('lessons').insert(row).select().single();
+    if (error) { toast.error('Errore nel salvataggio'); return; }
+    setLessons(prev => [...prev, data]);
     setIsAddOpen(false);
+    setNewLesson({ day: 1, start_hour: 9, duration: 2 });
     toast.success("Lezione aggiunta all'orario");
   };
 
-  const deleteLesson = (id: string) => {
-    setLessons(lessons.filter(l => l.id !== id));
+  const deleteLesson = async (id: string) => {
+    const { error } = await supabase.from('lessons').delete().eq('id', id);
+    if (error) { toast.error('Errore nella rimozione'); return; }
+    setLessons(prev => prev.filter(l => l.id !== id));
     toast.success("Lezione rimossa");
   };
 
@@ -83,9 +103,7 @@ export default function Timetable() {
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-zinc-950 border-zinc-800 text-white">
-            <DialogHeader>
-              <DialogTitle>Aggiungi Lezione</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Aggiungi Lezione</DialogTitle></DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label>Materia</Label>
@@ -98,7 +116,12 @@ export default function Timetable() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Aula</Label>
+                <Input placeholder="Es. Aula 4" className="bg-zinc-900 border-zinc-800"
+                  onChange={e => setNewLesson({...newLesson, room: e.target.value})} />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
                   <Label>Giorno</Label>
                   <Select onValueChange={v => setNewLesson({...newLesson, day: Number(v)})}>
@@ -111,9 +134,14 @@ export default function Timetable() {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label>Ora Inizio</Label>
-                  <Input type="number" min="8" max="20" className="bg-zinc-900 border-zinc-800"
-                    onChange={e => setNewLesson({...newLesson, start: Number(e.target.value)})} />
+                  <Label>Ora inizio</Label>
+                  <Input type="number" min="8" max="20" defaultValue="9" className="bg-zinc-900 border-zinc-800"
+                    onChange={e => setNewLesson({...newLesson, start_hour: Number(e.target.value)})} />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Durata (ore)</Label>
+                  <Input type="number" min="1" max="6" defaultValue="2" className="bg-zinc-900 border-zinc-800"
+                    onChange={e => setNewLesson({...newLesson, duration: Number(e.target.value)})} />
                 </div>
               </div>
               <Button onClick={handleAddLesson} className="bg-emerald-500 text-emerald-950 mt-4">Salva Lezione</Button>
@@ -122,8 +150,12 @@ export default function Timetable() {
         </Dialog>
       </div>
 
-      {lessons.length === 0 ? (
-        <EmptyState 
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="text-emerald-400 animate-spin" size={32} />
+        </div>
+      ) : lessons.length === 0 ? (
+        <EmptyState
           icon={CalendarIcon}
           title="Orario vuoto"
           description="Pianifica le tue lezioni settimanali per non perdere mai un'aula."
@@ -158,14 +190,14 @@ export default function Timetable() {
                     <div
                       key={lesson.id}
                       className={cn("absolute left-1 right-1 rounded-lg border p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:z-10 group shadow-lg", lesson.color)}
-                      style={{ top: `${(lesson.start - 8) * 80 + 4}px`, height: `${lesson.duration * 80 - 8}px` }}
+                      style={{ top: `${(lesson.start_hour - 8) * 80 + 4}px`, height: `${lesson.duration * 80 - 8}px` }}
                     >
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="text-xs font-bold leading-tight">{lesson.name}</h4>
                           <p className="text-[10px] opacity-70 mt-1 font-medium">{lesson.room}</p>
                         </div>
-                        <button 
+                        <button
                           onClick={() => deleteLesson(lesson.id)}
                           className="opacity-0 group-hover:opacity-100 p-1 hover:bg-black/20 rounded transition-all"
                         >

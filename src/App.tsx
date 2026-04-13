@@ -9,6 +9,8 @@ import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Pricing from './pages/Pricing';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { useExamNotifications } from './hooks/useExamNotifications';
+import { OnboardingTour } from './components/OnboardingTour';
 import { Toaster } from 'sonner';
 import { toast } from 'sonner';
 
@@ -16,6 +18,7 @@ type View = 'dashboard' | 'notes' | 'timetable' | 'roadmap' | 'analytics';
 
 function AppContent() {
   const { user, profile, loading } = useAuth();
+  useExamNotifications(user?.id);
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [showPricing, setShowPricing] = useState(false);
 
@@ -86,6 +89,7 @@ function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <OnboardingTour />
       <Toaster position="top-center" expand={false} richColors />
     </AuthProvider>
   );

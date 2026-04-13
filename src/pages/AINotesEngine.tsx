@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FileText, Plus, Upload, Loader2, Sparkles } from 'lucide-react';
+import { FileText, Plus, Upload, Loader2, Sparkles, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { NotesTable } from '@/components/notes/NotesTable';
@@ -93,6 +93,7 @@ export default function AINotesEngine() {
   const [processingStep, setProcessingStep] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Carica note da Supabase all'avvio
   useEffect(() => {
@@ -213,9 +214,21 @@ export default function AINotesEngine() {
           </h1>
           <p className="text-zinc-500">Carica un PDF e Gemini AI lo trasforma in una guida di studio.</p>
         </div>
-        <Button onClick={() => setIsAddOpen(true)} className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400 font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-          <Plus size={18} className="mr-2" /> Nuovo Appunto
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              type="text"
+              placeholder="Cerca nelle note..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="pl-9 pr-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 w-56 transition-all"
+            />
+          </div>
+          <Button onClick={() => setIsAddOpen(true)} className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400 font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+            <Plus size={18} className="mr-2" /> Nuovo Appunto
+          </Button>
+        </div>
       </div>
 
       <Dialog open={isAddOpen} onOpenChange={(open) => { if (!open && uploading) { if (confirm("Sei sicuro di voler annullare l'analisi?")) { setUploading(false); setIsAddOpen(false); } } else { setIsAddOpen(open); } }}>
@@ -284,9 +297,19 @@ export default function AINotesEngine() {
         <div className="space-y-6">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             I tuoi Materiali
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] uppercase tracking-wider">{notes.length} File</span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] uppercase tracking-wider">
+              {searchQuery ? `${notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.subject?.toLowerCase().includes(searchQuery.toLowerCase())).length} risultati` : `${notes.length} File`}
+            </span>
           </h2>
-          <NotesTable notes={notes} onRowClick={setSelectedNote} onDelete={deleteNote} />
+          <NotesTable
+            notes={searchQuery ? notes.filter(n =>
+              n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              n.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              n.content?.toLowerCase().includes(searchQuery.toLowerCase())
+            ) : notes}
+            onRowClick={setSelectedNote}
+            onDelete={deleteNote}
+          />
         </div>
       )}
 

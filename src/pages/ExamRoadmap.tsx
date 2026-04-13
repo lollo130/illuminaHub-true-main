@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { GraduationCap, Target, BookOpen, Plus, LayoutGrid, Trash2, ArrowRight, Clock, MapPin, Building2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { GraduationCap, Target, Plus, LayoutGrid, Trash2, ArrowRight, Clock, MapPin, Building2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { EmptyState } from '@/components/shared/EmptyState';
 import {
@@ -15,13 +14,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 interface Exam {
   id: string;
   name: string;
   professor: string;
   cfu: number;
-  targetGrade: number;
+  target_grade: number;
   progress: number;
   status: 'Planning' | 'Active Studying' | 'Ready' | 'Passed';
   date: string;
@@ -31,55 +32,74 @@ interface Exam {
 }
 
 export default function ExamRoadmap() {
-  const [exams, setExams] = useLocalStorage<Exam[]>('illuminahub_exams', []);
+  const { user } = useAuth();
   const [workspaces] = useLocalStorage<string[]>('illuminahub_workspaces', []);
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [newExam, setNewExam] = useState<Partial<Exam>>({
-    status: 'Planning',
-    progress: 0
-  });
+  const [newExam, setNewExam] = useState<Partial<Exam>>({ status: 'Planning', progress: 0 });
 
-  const handleAddExam = () => {
+  useEffect(() => {
+    if (!user) return;
+    const fetchExams = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('exams')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
+      if (!error) setExams(data || []);
+      setLoading(false);
+    };
+    fetchExams();
+  }, [user]);
+
+  const handleAddExam = async () => {
     if (!newExam.name || !newExam.cfu) {
       toast.error("Inserisci almeno il nome della materia e i CFU");
       return;
     }
-    
-    const exam: Exam = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: newExam.name!,
+    const row = {
+      user_id: user!.id,
+      name: newExam.name,
       professor: newExam.professor || 'Da definire',
       cfu: Number(newExam.cfu),
-      targetGrade: Number(newExam.targetGrade) || 30,
-      progress: Number(newExam.progress) || 0,
-      status: newExam.status as any,
+      target_grade: Number(newExam.targetGrade) || 30,
+      progress: 0,
+      status: newExam.status || 'Planning',
       date: newExam.date || new Date().toISOString().split('T')[0],
       time: newExam.time || '',
       location: newExam.location || '',
       room: newExam.room || '',
     };
-    
-    setExams([...exams, exam]);
+    const { data, error } = await supabase.from('exams').insert(row).select().single();
+    if (error) { toast.error('Errore nel salvataggio'); return; }
+    setExams(prev => [...prev, data]);
     setIsAddOpen(false);
     setNewExam({ status: 'Planning', progress: 0 });
     toast.success("Esame aggiunto alla roadmap");
   };
 
-  const deleteExam = (id: string) => {
-    setExams(exams.filter(e => e.id !== id));
+  const deleteExam = async (id: string) => {
+    const { error } = await supabase.from('exams').delete().eq('id', id);
+    if (error) { toast.error('Errore nella rimozione'); return; }
+    setExams(prev => prev.filter(e => e.id !== id));
     toast.success("Esame rimosso");
   };
 
-  const moveExam = (id: string) => {
+  const moveExam = async (id: string) => {
     const columns: Exam['status'][] = ['Planning', 'Active Studying', 'Ready', 'Passed'];
-    setExams(exams.map(e => {
-      if (e.id === id) {
-        const currentIndex = columns.indexOf(e.status);
-        const nextStatus = columns[Math.min(currentIndex + 1, columns.length - 1)];
-        return { ...e, status: nextStatus, progress: nextStatus === 'Passed' ? 100 : Math.max(e.progress, (currentIndex + 1) * 25) };
-      }
-      return e;
-    }));
+    const exam = exams.find(e => e.id === id);
+    if (!exam) return;
+    const currentIndex = columns.indexOf(exam.status);
+    const nextStatus = columns[Math.min(currentIndex + 1, columns.length - 1)];
+    const newProgress = nextStatus === 'Passed' ? 100 : Math.max(exam.progress, (currentIndex + 1) * 25);
+    const { error } = await supabase
+      .from('exams')
+      .update({ status: nextStatus, progress: newProgress })
+      .eq('id', id);
+    if (error) { toast.error('Errore aggiornamento'); return; }
+    setExams(prev => prev.map(e => e.id === id ? { ...e, status: nextStatus, progress: newProgress } : e));
   };
 
   const columns: Exam['status'][] = ['Planning', 'Active Studying', 'Ready', 'Passed'];
@@ -91,7 +111,7 @@ export default function ExamRoadmap() {
           <h1 className="text-3xl font-bold tracking-tight text-white">Exam Roadmap</h1>
           <p className="text-zinc-500">Gestisci i tuoi traguardi accademici con precisione.</p>
         </div>
-        
+
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400 font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)]">
@@ -99,9 +119,7 @@ export default function ExamRoadmap() {
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-zinc-950 border-zinc-800 text-white sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Pianifica Esame</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Pianifica Esame</DialogTitle></DialogHeader>
             <div className="grid gap-6 py-4">
               <div className="grid gap-2">
                 <Label className="text-zinc-400">Materia</Label>
@@ -114,7 +132,6 @@ export default function ExamRoadmap() {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label className="text-zinc-400">Professore</Label>
@@ -127,7 +144,6 @@ export default function ExamRoadmap() {
                     onChange={e => setNewExam({...newExam, date: e.target.value})} />
                 </div>
               </div>
-
               <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
                   <Label className="text-zinc-400">Orario</Label>
@@ -135,7 +151,7 @@ export default function ExamRoadmap() {
                     onChange={e => setNewExam({...newExam, time: e.target.value})} />
                 </div>
                 <div className="grid gap-2">
-                  <Label className="text-zinc-400">Luogo/Sede</Label>
+                  <Label className="text-zinc-400">Sede</Label>
                   <Input placeholder="Es. Sede Centrale" className="bg-zinc-900 border-zinc-800"
                     onChange={e => setNewExam({...newExam, location: e.target.value})} />
                 </div>
@@ -145,7 +161,6 @@ export default function ExamRoadmap() {
                     onChange={e => setNewExam({...newExam, room: e.target.value})} />
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label className="text-zinc-400">CFU</Label>
@@ -155,10 +170,9 @@ export default function ExamRoadmap() {
                 <div className="grid gap-2">
                   <Label className="text-zinc-400">Voto Target</Label>
                   <Input type="number" placeholder="30" className="bg-zinc-900 border-zinc-800"
-                    onChange={e => setNewExam({...newExam, targetGrade: Number(e.target.value)})} />
+                    onChange={e => setNewExam({...newExam, targetGrade: Number(e.target.value)} as any)} />
                 </div>
               </div>
-
               <Button onClick={handleAddExam} className="bg-emerald-500 text-emerald-950 font-bold h-12">
                 Salva nella Roadmap
               </Button>
@@ -167,8 +181,12 @@ export default function ExamRoadmap() {
         </Dialog>
       </div>
 
-      {exams.length === 0 ? (
-        <EmptyState 
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="text-emerald-400 animate-spin" size={32} />
+        </div>
+      ) : exams.length === 0 ? (
+        <EmptyState
           icon={LayoutGrid}
           title="Nessun esame pianificato"
           description="Inizia aggiungendo il tuo primo esame per tracciare i progressi."
@@ -185,12 +203,11 @@ export default function ExamRoadmap() {
                   {exams.filter(e => e.status === column).length}
                 </span>
               </div>
-              
               <div className="flex-1 bg-zinc-950/50 border border-zinc-900 rounded-2xl p-3 space-y-3 overflow-y-auto scrollbar-hide">
                 {exams.filter(e => e.status === column).map((exam) => (
-                  <ExamCard 
-                    key={exam.id} 
-                    exam={exam} 
+                  <ExamCard
+                    key={exam.id}
+                    exam={exam}
                     onDelete={() => deleteExam(exam.id)}
                     onMove={() => moveExam(exam.id)}
                   />
@@ -204,7 +221,7 @@ export default function ExamRoadmap() {
   );
 }
 
-function ExamCard({ exam, onDelete, onMove }: { exam: Exam, onDelete: () => void, onMove: () => void }) {
+function ExamCard({ exam, onDelete, onMove }: { exam: Exam; onDelete: () => void; onMove: () => void }) {
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (exam.progress / 100) * circumference;
@@ -228,25 +245,21 @@ function ExamCard({ exam, onDelete, onMove }: { exam: Exam, onDelete: () => void
         </div>
       </div>
 
-      {/* Exam Details */}
       {(exam.time || exam.location || exam.room) && (
         <div className="grid grid-cols-1 gap-1.5 py-2 border-y border-zinc-800/50">
           {exam.time && (
             <div className="flex items-center gap-2 text-[10px] text-zinc-400">
-              <Clock size={12} className="text-emerald-500/70" />
-              <span>{exam.time}</span>
+              <Clock size={12} className="text-emerald-500/70" /><span>{exam.time}</span>
             </div>
           )}
           {exam.location && (
             <div className="flex items-center gap-2 text-[10px] text-zinc-400">
-              <MapPin size={12} className="text-emerald-500/70" />
-              <span className="truncate">{exam.location}</span>
+              <MapPin size={12} className="text-emerald-500/70" /><span className="truncate">{exam.location}</span>
             </div>
           )}
           {exam.room && (
             <div className="flex items-center gap-2 text-[10px] text-zinc-400">
-              <Building2 size={12} className="text-emerald-500/70" />
-              <span>Aula: {exam.room}</span>
+              <Building2 size={12} className="text-emerald-500/70" /><span>Aula: {exam.room}</span>
             </div>
           )}
         </div>
@@ -260,10 +273,9 @@ function ExamCard({ exam, onDelete, onMove }: { exam: Exam, onDelete: () => void
           </div>
           <div className="bg-black/40 rounded-lg p-2 border border-zinc-800/50">
             <p className="text-[8px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Target</p>
-            <span className="text-xs font-bold text-zinc-300">{exam.targetGrade}</span>
+            <span className="text-xs font-bold text-zinc-300">{exam.target_grade}</span>
           </div>
         </div>
-
         <div className="relative h-12 w-12 flex items-center justify-center shrink-0">
           <svg className="h-full w-full -rotate-90">
             <circle cx="24" cy="24" r={radius} fill="transparent" stroke="currentColor" strokeWidth="3" className="text-zinc-800" />

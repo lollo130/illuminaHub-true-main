@@ -183,8 +183,38 @@ export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarPro
           </div>
         </ScrollArea>
 
+        {/* Credits Bar */}
+        {profile && (
+          <div className="px-4 pb-3">
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Crediti oggi</span>
+                <span className="text-[10px] font-bold text-emerald-400">
+                  {profile.credits_remaining} / {profile.plan === 'max' ? 50 : profile.plan === 'pro' ? 15 : 3}
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                  style={{
+                    width: `${Math.min(100, (profile.credits_remaining / (profile.plan === 'max' ? 50 : profile.plan === 'pro' ? 15 : 3)) * 100)}%`
+                  }}
+                />
+              </div>
+              {profile.credits_remaining === 0 && (
+                <button
+                  onClick={onShowPricing}
+                  className="w-full text-[10px] text-emerald-400 hover:text-emerald-300 font-semibold text-center transition-colors"
+                >
+                  Upgrade per più crediti →
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* User Profile */}
-        <div className="p-4 mt-auto border-t border-zinc-800">
+        <div className="p-4 border-t border-zinc-800">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="w-full flex items-center justify-between p-2 rounded-lg bg-zinc-900/30 border border-zinc-800/50 hover:bg-zinc-900 transition-colors group">
@@ -197,7 +227,7 @@ export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarPro
                   </Avatar>
                   <div className="flex flex-col items-start min-w-0">
                     <span className="text-xs font-semibold text-zinc-100 truncate w-full text-left">@{profile?.nickname || 'utente'}</span>
-                    <span className="text-[10px] text-zinc-500">Piano Pro</span>
+                    <span className="text-[10px] text-zinc-500 capitalize">Piano {profile?.plan || 'Free'}</span>
                   </div>
                 </div>
                 <Settings size={14} className="text-zinc-500 group-hover:text-zinc-300 shrink-0 ml-2" />
@@ -238,7 +268,7 @@ export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarPro
               <div>
                 <p className="text-sm font-semibold text-white">@{profile?.nickname}</p>
                 <p className="text-xs text-zinc-500 mt-0.5">{user?.email}</p>
-                <span className="mt-1 inline-block text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Piano Pro</span>
+                <span className="mt-1 inline-block text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize">Piano {profile?.plan || 'Free'}</span>
               </div>
             </div>
 
@@ -328,7 +358,7 @@ export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarPro
 
               <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 space-y-1">
                 <p className="text-xs text-zinc-400">Piano attivo</p>
-                <p className="text-sm font-medium text-emerald-400">Piano Pro</p>
+                <p className="text-sm font-medium text-emerald-400 capitalize">Piano {profile?.plan || 'Free'}</p>
               </div>
             </div>
 

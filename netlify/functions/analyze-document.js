@@ -115,12 +115,12 @@ exports.handler = async (event) => {
     return { statusCode: 404, body: JSON.stringify({ error: 'Profilo non trovato' }) };
   }
 
-  if (profile.plan !== 'max' && profile.credits_remaining <= 0) {
+  if (profile.credits_remaining <= 0) {
     return { statusCode: 402, body: JSON.stringify({ error: 'Crediti esauriti! Passa a un piano superiore.' }) };
   }
 
-  // 4. Decremento atomico crediti (con condizione per evitare race condition)
-  if (profile.plan !== 'max') {
+  // 4. Decremento atomico crediti
+  {
     const { error: creditError } = await supabase
       .from('profiles')
       .update({ credits_remaining: profile.credits_remaining - 1 })
@@ -154,12 +154,10 @@ exports.handler = async (event) => {
     if (!geminiRes.ok) {
       const err = await geminiRes.json().catch(() => ({}));
       // Ripristina il credito se Gemini fallisce
-      if (profile.plan !== 'max') {
-        await supabase
-          .from('profiles')
-          .update({ credits_remaining: profile.credits_remaining })
-          .eq('id', user.id);
-      }
+      await supabase
+        .from('profiles')
+        .update({ credits_remaining: profile.credits_remaining })
+        .eq('id', user.id);
       return { statusCode: 502, body: JSON.stringify({ error: err.error?.message || 'Errore API Gemini' }) };
     }
 
@@ -167,16 +165,14 @@ exports.handler = async (event) => {
     geminiResult = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Analisi non disponibile.';
   } catch (err) {
     // Ripristina il credito su errore di rete
-    if (profile.plan !== 'max') {
-      await supabase
-        .from('profiles')
-        .update({ credits_remaining: profile.credits_remaining })
-        .eq('id', user.id);
-    }
+    await supabase
+      .from('profiles')
+      .update({ credits_remaining: profile.credits_remaining })
+      .eq('id', user.id);
     return { statusCode: 502, body: JSON.stringify({ error: 'Errore di connessione a Gemini' }) };
   }
 
-  const newCredits = profile.plan === 'max' ? null : profile.credits_remaining - 1;
+  const newCredits = profile.credits_remaining - 1;
 
   return {
     statusCode: 200,

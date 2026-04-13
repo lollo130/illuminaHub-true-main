@@ -212,6 +212,83 @@ function PlanGate({ requiredPlan, currentPlan, onShowPricing, children }: { requ
   );
 }
 
+// ─── FLASHCARD Tab ───────────────────────────────────────────────────────────
+function FlashcardsTab({ domande, concetti }: { domande: { q: string; a: string }[]; concetti: { label: string; desc: string }[] }) {
+  type Card = { front: string; back: string };
+  const cards: Card[] = [
+    ...domande.map(d => ({ front: d.q, back: d.a })),
+    ...concetti.filter(c => c.label).map(c => ({ front: c.label, back: c.desc })),
+  ];
+
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [known, setKnown] = useState<boolean[]>([]);
+
+  if (cards.length === 0) return (
+    <p className="text-zinc-500 text-sm text-center py-10">Nessuna flashcard disponibile per questo documento.</p>
+  );
+
+  if (index >= cards.length) {
+    const score = known.filter(Boolean).length;
+    return (
+      <div className="flex flex-col items-center justify-center py-16 space-y-4 text-center">
+        <div className="h-20 w-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+          <span className="text-3xl font-bold text-emerald-400">{score}/{cards.length}</span>
+        </div>
+        <p className="text-white font-semibold text-xl">{score === cards.length ? 'Perfetto! 🎉' : score >= cards.length / 2 ? 'Ottimo! 👍' : 'Continua a studiare! 💪'}</p>
+        <Button onClick={() => { setIndex(0); setFlipped(false); setKnown([]); }} className="bg-zinc-800 hover:bg-zinc-700 gap-2">
+          <RotateCcw size={16} /> Ricomincia
+        </Button>
+      </div>
+    );
+  }
+
+  const card = cards[index];
+  return (
+    <div className="space-y-6 p-2">
+      <div className="flex items-center justify-between text-xs text-zinc-500">
+        <span className="font-mono">{index + 1} / {cards.length}</span>
+        <div className="flex gap-1">
+          {cards.map((_, i) => (
+            <div key={i} className={`h-1.5 w-6 rounded-full ${i < index ? (known[i] ? 'bg-emerald-500' : 'bg-red-500') : i === index ? 'bg-zinc-400' : 'bg-zinc-800'}`} />
+          ))}
+        </div>
+      </div>
+
+      <div
+        onClick={() => setFlipped(f => !f)}
+        className="cursor-pointer min-h-[200px] rounded-2xl border border-zinc-800 bg-zinc-900 p-8 flex items-center justify-center text-center transition-all hover:border-emerald-500/30"
+      >
+        {!flipped ? (
+          <div className="space-y-3">
+            <p className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold">Domanda</p>
+            <p className="text-white font-semibold text-base leading-relaxed">{card.front}</p>
+            <p className="text-[10px] text-zinc-600 mt-4">Clicca per vedere la risposta</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-[10px] uppercase tracking-widest text-emerald-500/70 font-bold">Risposta</p>
+            <p className="text-zinc-300 text-sm leading-relaxed">{card.back}</p>
+          </div>
+        )}
+      </div>
+
+      {flipped && (
+        <div className="grid grid-cols-2 gap-3">
+          <Button onClick={() => { setKnown(k => [...k, false]); setIndex(i => i + 1); setFlipped(false); }}
+            className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 font-semibold gap-2">
+            <X size={16} /> Non sapevo
+          </Button>
+          <Button onClick={() => { setKnown(k => [...k, true]); setIndex(i => i + 1); setFlipped(false); }}
+            className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 font-semibold gap-2">
+            <Check size={16} /> Sapevo
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── QUIZ Tab ─────────────────────────────────────────────────────────────────
 function QuizTab({ domande }: { domande: { q: string; a: string }[] }) {
   const [current, setCurrent] = useState(0);
@@ -733,6 +810,7 @@ export function NoteDetailView({ note, allNotes = [], onClose, onShowPricing }: 
 
   const tabs = [
     { id: 'appunti', label: 'Appunti', icon: FileText, plan: null },
+    { id: 'flashcard', label: 'Flashcard', icon: Zap, plan: null },
     { id: 'quiz', label: 'Quiz', icon: BookOpen, plan: 'pro' },
     { id: 'piano', label: 'Piano Studio', icon: Calendar, plan: 'pro' },
     { id: 'chat', label: 'Chat', icon: MessageSquare, plan: 'pro' },
@@ -883,6 +961,11 @@ export function NoteDetailView({ note, allNotes = [], onClose, onShowPricing }: 
                 </section>
               )}
             </div>
+          )}
+
+          {/* FLASHCARD TAB */}
+          {activeTab === 'flashcard' && (
+            <FlashcardsTab domande={domande} concetti={concetti} />
           )}
 
           {/* QUIZ TAB */}

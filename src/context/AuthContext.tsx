@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Reset crediti se è un nuovo giorno
         const today = new Date().toISOString().split('T')[0];
         if (data.credits_reset_date !== today && data.plan !== 'max') {
-          const defaultCredits = data.plan === 'pro' ? 20 : 3;
+          const defaultCredits = data.plan === 'max' ? 50 : data.plan === 'pro' ? 15 : 3;
           await supabase
             .from('profiles')
             .update({ credits_remaining: defaultCredits, credits_reset_date: today })
