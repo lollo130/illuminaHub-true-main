@@ -363,6 +363,7 @@ function ChatTab({ noteContent, noteTitle }: { noteContent: string; noteTitle: s
 
 // ─── PIANO DI STUDIO Tab ──────────────────────────────────────────────────────
 function PianoStudioTab({ noteContent, noteTitle }: { noteContent: string; noteTitle: string }) {
+  const { session } = useAuth();
   const [examDate, setExamDate] = useState('');
   const [piano, setPiano] = useState('');
   const [loading, setLoading] = useState(false);
@@ -376,15 +377,11 @@ function PianoStudioTab({ noteContent, noteTitle }: { noteContent: string; noteT
     const cleanContent = noteContent.replace(/<<<CHARTS>>>[\s\S]*?<<<END_CHARTS>>>/g, '').substring(0, 15000);
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Sei un esperto di pianificazione dello studio universitario. Crea un piano di studio dettagliato per il seguente documento.
+      const response = await fetch('/.netlify/functions/gemini-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({
+          prompt: `Sei un esperto di pianificazione dello studio universitario. Crea un piano di studio dettagliato per il seguente documento.
 
 DOCUMENTO: ${noteTitle}
 GIORNI DISPONIBILI: ${daysLeft} giorni prima dell'esame
@@ -396,15 +393,13 @@ Crea un piano di studio giornaliero in italiano con:
 3. Consigli pratici per ogni sessione
 4. Giorni di ripasso prima dell'esame
 
-Formato: usa ## Giorno X - [Data] per ogni giorno, poi elenca gli argomenti con i tempi.`
-              }]
-            }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 3000 }
-          })
-        }
-      );
+Formato: usa ## Giorno X - [Data] per ogni giorno, poi elenca gli argomenti con i tempi.`,
+          temperature: 0.3,
+          maxOutputTokens: 3000,
+        }),
+      });
       const data = await response.json();
-      setPiano(data.candidates?.[0]?.content?.parts?.[0]?.text || 'Errore nella generazione.');
+      setPiano(data.result || 'Errore nella generazione.');
     } catch {
       toast.error('Errore nella generazione del piano');
     } finally {
@@ -454,6 +449,7 @@ Formato: usa ## Giorno X - [Data] per ogni giorno, poi elenca gli argomenti con 
 
 // ─── CONFRONTA Tab ────────────────────────────────────────────────────────────
 function ConfrontaTab({ currentNote, allNotes }: { currentNote: any; allNotes: any[] }) {
+  const { session } = useAuth();
   const [selectedNoteId, setSelectedNoteId] = useState('');
   const [confronto, setConfronto] = useState('');
   const [loading, setLoading] = useState(false);
@@ -470,15 +466,11 @@ function ConfrontaTab({ currentNote, allNotes }: { currentNote: any; allNotes: a
     const content2 = otherNote.content.replace(/<<<CHARTS>>>[\s\S]*?<<<END_CHARTS>>>/g, '').substring(0, 10000);
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Confronta i seguenti due documenti universitari e trova:
+      const response = await fetch('/.netlify/functions/gemini-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({
+          prompt: `Confronta i seguenti due documenti universitari e trova:
 1. Concetti in comune tra i due documenti
 2. Concetti presenti solo nel primo documento
 3. Concetti presenti solo nel secondo documento
@@ -491,15 +483,12 @@ ${content1}
 DOCUMENTO 2: ${otherNote.title}
 ${content2}
 
-Rispondi in italiano con sezioni chiare.`
-              }]
-            }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 3000 }
-          })
-        }
-      );
+Rispondi in italiano con sezioni chiare.`,
+          maxOutputTokens: 3000,
+        }),
+      });
       const data = await response.json();
-      setConfronto(data.candidates?.[0]?.content?.parts?.[0]?.text || 'Errore nel confronto.');
+      setConfronto(data.result || 'Errore nel confronto.');
     } catch {
       toast.error('Errore nel confronto');
     } finally {
@@ -619,6 +608,7 @@ function EsportaTab({ note, sections, domande, concetti, punti }: any) {
 
 // ─── ANALISI GAP Tab ──────────────────────────────────────────────────────────
 function AnalisiGapTab({ noteContent, noteTitle }: { noteContent: string; noteTitle: string }) {
+  const { session } = useAuth();
   const [programma, setProgramma] = useState('');
   const [analisi, setAnalisi] = useState('');
   const [loading, setLoading] = useState(false);
@@ -630,15 +620,11 @@ function AnalisiGapTab({ noteContent, noteTitle }: { noteContent: string; noteTi
     const cleanContent = noteContent.replace(/<<<CHARTS>>>[\s\S]*?<<<END_CHARTS>>>/g, '').substring(0, 15000);
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Sei un esperto universitario. Analizza la copertura degli appunti rispetto al programma dell'esame.
+      const response = await fetch('/.netlify/functions/gemini-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({
+          prompt: `Sei un esperto universitario. Analizza la copertura degli appunti rispetto al programma dell'esame.
 
 PROGRAMMA DELL'ESAME:
 ${programma}
@@ -663,15 +649,12 @@ In base ai gap trovati, indica i 5 argomenti più urgenti da studiare, in ordine
 ## 5. Valutazione Complessiva
 Un voto da 0 a 10 sulla completezza degli appunti rispetto al programma, con motivazione.
 
-Sii preciso e basati esclusivamente sui contenuti forniti.`
-              }]
-            }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 3000 }
-          })
-        }
-      );
+Sii preciso e basati esclusivamente sui contenuti forniti.`,
+          maxOutputTokens: 3000,
+        }),
+      });
       const data = await response.json();
-      setAnalisi(data.candidates?.[0]?.content?.parts?.[0]?.text || 'Errore nella generazione.');
+      setAnalisi(data.result || 'Errore nella generazione.');
     } catch {
       toast.error('Errore nella generazione');
     } finally {
