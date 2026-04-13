@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /c/Users/loren/Downloads/illuminaHub-trure-main/illuminaHub-trure-main/.env*)",
+      "Bash(find /c/Users/loren/Downloads/illuminaHub-trure-main/illuminaHub-trure-main/supabase -name \"*.sql\" -exec cat {} \\\\;)",
+      "WebFetch(domain:illuminahub.netlify.app)"
+    ]
+  }
+}
