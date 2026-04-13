@@ -64,7 +64,7 @@ export default function ExamRoadmap() {
       name: newExam.name,
       professor: newExam.professor || 'Da definire',
       cfu: Number(newExam.cfu),
-      target_grade: Number(newExam.targetGrade) || 30,
+      target_grade: Number(newExam.target_grade) || 30,
       progress: 0,
       status: newExam.status || 'Planning',
       date: newExam.date || new Date().toISOString().split('T')[0],
@@ -170,7 +170,7 @@ export default function ExamRoadmap() {
                 <div className="grid gap-2">
                   <Label className="text-zinc-400">Voto Target</Label>
                   <Input type="number" placeholder="30" className="bg-zinc-900 border-zinc-800"
-                    onChange={e => setNewExam({...newExam, targetGrade: Number(e.target.value)} as any)} />
+                    onChange={e => setNewExam({...newExam, target_grade: Number(e.target.value)})} />
                 </div>
               </div>
               <Button onClick={handleAddExam} className="bg-emerald-500 text-emerald-950 font-bold h-12">
