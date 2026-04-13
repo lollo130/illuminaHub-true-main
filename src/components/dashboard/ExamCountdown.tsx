@@ -47,11 +47,17 @@ export function ExamCountdown({ exams }: ExamCountdownProps) {
             <h3 className="text-2xl font-bold text-white">{nextExam.name}</h3>
             <div className="flex items-center gap-2 text-zinc-500 text-sm">
               <Calendar size={14} />
-              <span>Data da definire</span>
+              <span>{nextExam.date ? new Date(nextExam.date).toLocaleDateString('it-IT') : 'Data da definire'}</span>
             </div>
           </div>
           <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center">
-            <span className="text-emerald-400 text-xl font-bold leading-none">?</span>
+            {(() => {
+              if (!nextExam.date) return <span className="text-emerald-400 text-xl font-bold leading-none">?</span>;
+              const today = new Date(); today.setHours(0,0,0,0);
+              const examDate = new Date(nextExam.date); examDate.setHours(0,0,0,0);
+              const days = Math.ceil((examDate.getTime() - today.getTime()) / (1000*60*60*24));
+              return <span className="text-emerald-400 text-xl font-bold leading-none">{days >= 0 ? days : 0}</span>;
+            })()}
             <span className="text-emerald-500/60 text-[8px] font-bold uppercase tracking-tighter">Giorni</span>
           </div>
         </div>

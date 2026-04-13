@@ -58,7 +58,7 @@ export function UpNext({ lessons }: UpNextProps) {
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Orario</span>
-              <span className="text-sm font-medium">{nextLesson.start}:00 - {nextLesson.start + nextLesson.duration}:00</span>
+              <span className="text-sm font-medium">{nextLesson.start_hour}:00 - {nextLesson.start_hour + nextLesson.duration}:00</span>
             </div>
           </div>
           <div className="flex items-center gap-3 text-zinc-300">

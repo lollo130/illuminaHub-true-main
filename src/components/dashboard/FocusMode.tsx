@@ -36,7 +36,7 @@ export function FocusMode() {
           <CardTitle className="text-sm font-medium text-zinc-400">Focus Mode</CardTitle>
           <div className="flex items-center gap-1 text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-full text-[10px] font-bold">
             <Flame size={12} />
-            12 DAY STREAK
+            Pomodoro
           </div>
         </div>
       </CardHeader>

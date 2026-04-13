@@ -1,15 +1,28 @@
-import { FileText, MessageSquare, Share2, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 export function ActivityFeed() {
-  const [notes] = useLocalStorage<any[]>('illuminahub_notes', []);
-  
-  // Filtriamo solo le attività reali (es. caricamento note)
-  const activities = notes.slice(0, 5).map(note => ({
+  const { user } = useAuth();
+  const [notes, setNotes] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('notes')
+      .select('id, title, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => setNotes(data || []));
+  }, [user]);
+
+  const activities = notes.map(note => ({
     type: 'note',
     title: `Documento elaborato: ${note.title}`,
-    time: note.date,
+    time: new Date(note.created_at).toLocaleDateString('it-IT'),
     icon: FileText,
     color: 'text-emerald-400'
   }));

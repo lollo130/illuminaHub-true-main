@@ -1,4 +1,4 @@
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useState, useEffect } from 'react';
 import { UpNext } from './dashboard/UpNext';
 import { FocusMode } from './dashboard/FocusMode';
 import { AIInjest } from './dashboard/AIInjest';
@@ -7,14 +7,32 @@ import { ActivityFeed } from './dashboard/ActivityFeed';
 import { EmptyState } from './shared/EmptyState';
 import { LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export function Dashboard() {
-  const { profile } = useAuth();
-  const [exams] = useLocalStorage<any[]>('illuminahub_exams', []);
-  const [lessons] = useLocalStorage<any[]>('illuminahub_lessons', []);
-  const [notes] = useLocalStorage<any[]>('illuminahub_notes', []);
+  const { profile, user } = useAuth();
+  const [exams, setExams] = useState<any[]>([]);
+  const [lessons, setLessons] = useState<any[]>([]);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  const isAppEmpty = exams.length === 0 && lessons.length === 0 && notes.length === 0;
+  useEffect(() => {
+    if (!user) return;
+    const fetchData = async () => {
+      const [{ data: examsData }, { data: lessonsData }, { data: notesData }] = await Promise.all([
+        supabase.from('exams').select('*').eq('user_id', user.id).neq('status', 'Passed'),
+        supabase.from('lessons').select('*').eq('user_id', user.id),
+        supabase.from('notes').select('id, title, subject, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+      ]);
+      setExams(examsData || []);
+      setLessons(lessonsData || []);
+      setNotes(notesData || []);
+      setLoaded(true);
+    };
+    fetchData();
+  }, [user]);
+
+  const isAppEmpty = loaded && exams.length === 0 && lessons.length === 0 && notes.length === 0;
 
   if (isAppEmpty) {
     return (

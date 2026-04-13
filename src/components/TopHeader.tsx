@@ -42,9 +42,9 @@ export function TopHeader({ onShowPricing }: TopHeaderProps) {
     max: 'Max',
   }[profile?.plan || 'free'];
 
-  const credits = profile?.plan === 'max' ? '∞' : (profile?.credits_remaining ?? 0);
-  const maxCredits = profile?.plan === 'pro' ? 20 : 3;
-  const creditsPercent = profile?.plan === 'max' ? 100 : Math.round(((profile?.credits_remaining ?? 0) / maxCredits) * 100);
+  const credits = profile?.credits_remaining ?? 0;
+  const maxCredits = profile?.plan === 'max' ? 50 : profile?.plan === 'pro' ? 15 : 3;
+  const creditsPercent = Math.round((credits / maxCredits) * 100);
 
   // Genera notifiche dinamiche basate sullo stato dell'utente
   const notifiche = [];
@@ -98,9 +98,7 @@ export function TopHeader({ onShowPricing }: TopHeaderProps) {
     color: 'text-emerald-400',
     bg: 'bg-emerald-500/10',
     title: 'Crediti di oggi',
-    message: profile?.plan === 'max'
-      ? 'Hai crediti illimitati con il piano Max. Analizza tutti i PDF che vuoi!'
-      : `Hai usato ${maxCredits - (profile?.credits_remaining ?? 0)} crediti su ${maxCredits} oggi (${creditsPercent}%).`,
+    message: `Hai usato ${maxCredits - credits} crediti su ${maxCredits} oggi (${creditsPercent}%).`,
     cta: null,
     onClick: null,
   });
@@ -156,7 +154,7 @@ export function TopHeader({ onShowPricing }: TopHeaderProps) {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all hover:opacity-80 ${planColor}`}
           >
             <Zap size={12} className="fill-current" />
-            {credits} crediti · {planLabel}
+            {credits}/{maxCredits} · {planLabel}
           </button>
 
           {/* Campanella notifiche */}

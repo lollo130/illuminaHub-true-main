@@ -29,11 +29,6 @@ export default function Login() {
       ? 'https://illuminahub.netlify.app' 
       : window.location.origin;
 
-    console.log('--- DEBUG LOGIN ATTEMPT ---');
-    console.log('Environment:', isProd ? 'PRODUCTION' : 'DEVELOPMENT');
-    console.log('Attempting Google Login with redirectTo:', redirectTo);
-    console.log('---------------------------');
-
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
