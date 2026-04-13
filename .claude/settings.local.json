@@ -3,7 +3,9 @@
     "allow": [
       "Bash(ls -la /c/Users/loren/Downloads/illuminaHub-trure-main/illuminaHub-trure-main/.env*)",
       "Bash(find /c/Users/loren/Downloads/illuminaHub-trure-main/illuminaHub-trure-main/supabase -name \"*.sql\" -exec cat {} \\\\;)",
-      "WebFetch(domain:illuminahub.netlify.app)"
+      "WebFetch(domain:illuminahub.netlify.app)",
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
