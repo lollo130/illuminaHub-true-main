@@ -7,8 +7,8 @@ const supabase = createClient(
 );
 
 const PLAN_CREDITS = {
-  'price_1TL5kC3XBPI9jVOiw92s8tXO': { plan: 'pro', credits: 15 },
-  'price_1TL5kl3XBPI9jVOiYKE1UbS3': { plan: 'max', credits: 50 },
+  'price_1TMAa53Rp2hyMOOPJQbLdRfg': { plan: 'pro', credits: 15 },
+  'price_1TMAaX3Rp2hyMOOPjbgQzYt9': { plan: 'max', credits: 50 },
 };
 
 exports.handler = async (event) => {
