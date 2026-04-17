@@ -81,6 +81,7 @@ function AppContent() {
         </div>
       </main>
       {showPricing && <Pricing onClose={() => setShowPricing(false)} />}
+      <OnboardingTour />
     </div>
   );
 }
@@ -89,7 +90,6 @@ function App() {
   return (
     <AuthProvider>
       <AppContent />
-      <OnboardingTour />
       <Toaster position="top-center" expand={false} richColors />
     </AuthProvider>
   );
