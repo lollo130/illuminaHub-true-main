@@ -5,7 +5,7 @@ import { AIInjest } from './dashboard/AIInjest';
 import { ExamCountdown } from './dashboard/ExamCountdown';
 import { ActivityFeed } from './dashboard/ActivityFeed';
 import { EmptyState } from './shared/EmptyState';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, FileText, CalendarDays, BookOpen, Zap } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import type { Exam, Lesson, Note } from '@/types';
@@ -73,11 +73,34 @@ export function Dashboard() {
     );
   }
 
+  const jsDay = new Date().getDay();
+  const todayLessons = lessons.filter(l => l.day === jsDay).length;
+  const maxCredits = profile?.plan === 'max' ? 50 : profile?.plan === 'pro' ? 15 : 3;
+
+  const statCards = [
+    { label: 'APPUNTI', value: notes.length, icon: FileText },
+    { label: 'LEZIONI OGGI', value: todayLessons, icon: CalendarDays },
+    { label: 'ESAMI ATTIVI', value: exams.length, icon: BookOpen },
+    { label: 'CREDITI RIMASTI', value: profile ? `${profile.credits_remaining}/${maxCredits}` : '—', icon: Zap },
+  ];
+
   return (
-    <div className="px-6 py-8 md:px-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-screen-xl">
+    <div className="px-6 py-8 md:px-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-screen-xl">
       <div className="flex flex-col gap-1.5">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Bentornato, {profile?.nickname || 'Studente'}</h1>
-        <p className="text-zinc-500 text-sm">Il tuo spazio di lavoro è sincronizzato e pronto per le sessioni di oggi.</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Bentornato, {profile?.nickname || 'Studente'} 👋</h1>
+        <p className="text-zinc-500 text-sm">Il tuo spazio di lavoro è sincronizzato e pronto per oggi.</p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {statCards.map(stat => (
+          <div key={stat.label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{stat.label}</span>
+              <stat.icon size={15} className="text-zinc-600" />
+            </div>
+            <span className="text-2xl font-bold text-white">{stat.value}</span>
+          </div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">

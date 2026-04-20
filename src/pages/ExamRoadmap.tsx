@@ -226,10 +226,18 @@ export default function ExamRoadmap() {
   );
 }
 
+const STATUS_CIRCLE_COLOR: Record<string, string> = {
+  'Planning': 'text-zinc-500',
+  'Active Studying': 'text-blue-400',
+  'Ready': 'text-teal-400',
+  'Passed': 'text-violet-400',
+};
+
 function ExamCard({ exam, onDelete, onMove }: { exam: Exam; onDelete: () => void; onMove: () => void }) {
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (exam.progress / 100) * circumference;
+  const circleColor = STATUS_CIRCLE_COLOR[exam.status] ?? 'text-emerald-500';
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-4 hover:border-zinc-700 transition-all group relative">
@@ -284,7 +292,7 @@ function ExamCard({ exam, onDelete, onMove }: { exam: Exam; onDelete: () => void
         <div className="relative h-12 w-12 flex items-center justify-center shrink-0">
           <svg className="h-full w-full -rotate-90">
             <circle cx="24" cy="24" r={radius} fill="transparent" stroke="currentColor" strokeWidth="3" className="text-zinc-800" />
-            <circle cx="24" cy="24" r={radius} fill="transparent" stroke="currentColor" strokeWidth="3" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="text-emerald-500 transition-all duration-1000" />
+            <circle cx="24" cy="24" r={radius} fill="transparent" stroke="currentColor" strokeWidth="3" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className={`${circleColor} transition-all duration-1000`} />
           </svg>
           <span className="absolute text-[10px] font-bold text-white">{exam.progress}%</span>
         </div>

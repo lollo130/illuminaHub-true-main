@@ -32,11 +32,11 @@ const DAYS = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
 
 const COLORS = [
-  'bg-emerald-500/20 border-emerald-500/30 text-emerald-400',
-  'bg-purple-500/20 border-purple-500/30 text-purple-400',
-  'bg-blue-500/20 border-blue-500/30 text-blue-400',
-  'bg-amber-500/20 border-amber-500/30 text-amber-400',
-  'bg-rose-500/20 border-rose-500/30 text-rose-400',
+  'bg-emerald-900/90 border-emerald-700/50 text-emerald-300',
+  'bg-purple-900/90 border-purple-700/50 text-purple-300',
+  'bg-blue-900/90 border-blue-700/50 text-blue-300',
+  'bg-amber-900/90 border-amber-700/50 text-amber-300',
+  'bg-rose-900/90 border-rose-700/50 text-rose-300',
 ];
 
 export default function Timetable() {
@@ -195,7 +195,8 @@ export default function Timetable() {
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="text-xs font-bold leading-tight">{lesson.name}</h4>
-                          <p className="text-[10px] opacity-70 mt-1 font-medium">{lesson.room}</p>
+                          <p className="text-[10px] opacity-70 mt-0.5 font-medium">{lesson.room}</p>
+                          <p className="text-[10px] opacity-60 mt-0.5 font-medium">{lesson.start_hour}:00 – {lesson.start_hour + lesson.duration}:00</p>
                         </div>
                         <button
                           onClick={() => deleteLesson(lesson.id)}

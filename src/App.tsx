@@ -5,6 +5,7 @@ import { Dashboard } from './components/Dashboard';
 import AINotesEngine from './pages/AINotesEngine';
 import Timetable from './pages/Timetable';
 import ExamRoadmap from './pages/ExamRoadmap';
+import GradeAnalytics from './pages/GradeAnalytics';
 import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Pricing from './pages/Pricing';
@@ -66,6 +67,7 @@ function AppContent() {
       case 'notes': return <AINotesEngine searchQuery={searchQuery} />;
       case 'timetable': return <Timetable />;
       case 'roadmap': return <ExamRoadmap />;
+      case 'analytics': return <GradeAnalytics />;
       default: return <Dashboard />;
     }
   };
@@ -79,7 +81,7 @@ function AppContent() {
         mobileOpen={mobileSidebarOpen}
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
-      <main className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      <main className="flex-1 lg:ml-[164px] flex flex-col min-h-screen">
         <TopHeader
           onShowPricing={() => setShowPricing(true)}
           onMenuClick={() => setMobileSidebarOpen(true)}

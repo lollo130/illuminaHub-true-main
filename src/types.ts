@@ -26,6 +26,7 @@ export interface Lesson {
   room?: string;
   start_hour?: number;
   duration?: number;
+  day?: number;
   user_id?: string;
 }
 
