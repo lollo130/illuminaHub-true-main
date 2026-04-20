@@ -1,9 +1,10 @@
 import { Calendar, ArrowRight, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import type { Exam } from '@/types';
 
 interface ExamCountdownProps {
-  exams: Record<string, unknown>[];
+  exams: Exam[];
 }
 
 export function ExamCountdown({ exams }: ExamCountdownProps) {

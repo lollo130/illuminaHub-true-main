@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import type { Note } from '@/types';
 
 const MAX_FILE_SIZE_MB = 20;
 
@@ -90,9 +91,9 @@ interface AINotesEngineProps {
 export default function AINotesEngine({ searchQuery = '' }: AINotesEngineProps) {
   const { user, session, profile, refreshProfile } = useAuth();
   const [workspaces] = useLocalStorage<string[]>('illuminahub_workspaces', []);
-  const [notes, setNotes] = useState<Record<string, unknown>[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loadingNotes, setLoadingNotes] = useState(true);
-  const [selectedNote, setSelectedNote] = useState<Record<string, unknown> | null>(null);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);

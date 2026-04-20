@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import type { Note } from '@/types';
 import {
   BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
@@ -14,8 +15,8 @@ import {
 const CHART_COLORS = ['#10b981', '#8b5cf6', '#f59e0b', '#3b82f6', '#ef4444', '#06b6d4', '#ec4899'];
 
 interface NoteDetailViewProps {
-  note: Record<string, unknown>;
-  allNotes?: Record<string, unknown>[];
+  note: Note;
+  allNotes?: Note[];
   onClose: () => void;
   onShowPricing?: () => void;
 }
@@ -532,7 +533,7 @@ Formato: usa ## Giorno X - [Data] per ogni giorno, poi elenca gli argomenti con 
 }
 
 // ─── CONFRONTA Tab ────────────────────────────────────────────────────────────
-function ConfrontaTab({ currentNote, allNotes }: { currentNote: Record<string, unknown>; allNotes: Record<string, unknown>[] }) {
+function ConfrontaTab({ currentNote, allNotes }: { currentNote: Note; allNotes: Note[] }) {
   const { session } = useAuth();
   const [selectedNoteId, setSelectedNoteId] = useState('');
   const [confronto, setConfronto] = useState('');
@@ -629,7 +630,7 @@ Rispondi in italiano con sezioni chiare.`,
 
 // ─── ESPORTA Tab ──────────────────────────────────────────────────────────────
 function EsportaTab({ note, sections, domande, concetti, punti }: {
-  note: Record<string, unknown>;
+  note: Note;
   sections: Record<string, string>;
   domande: { q: string; a: string }[];
   concetti: { label: string; desc: string }[];

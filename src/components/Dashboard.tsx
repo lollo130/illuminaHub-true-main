@@ -8,12 +8,13 @@ import { EmptyState } from './shared/EmptyState';
 import { LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
+import type { Exam, Lesson, Note } from '@/types';
 
 export function Dashboard() {
   const { profile, user } = useAuth();
-  const [exams, setExams] = useState<Record<string, unknown>[]>([]);
-  const [lessons, setLessons] = useState<Record<string, unknown>[]>([]);
-  const [notes, setNotes] = useState<Record<string, unknown>[]>([]);
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {

@@ -9,10 +9,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { FileText, Trash2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { Note } from '@/types';
 
 interface NotesTableProps {
-  notes: Record<string, unknown>[];
-  onRowClick: (note: Record<string, unknown>) => void;
+  notes: Note[];
+  onRowClick: (note: Note) => void;
   onDelete: (id: string) => void;
 }
 

@@ -3,10 +3,11 @@ import { FileText, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
+import type { Note } from '@/types';
 
 export function ActivityFeed() {
   const { user } = useAuth();
-  const [notes, setNotes] = useState<Record<string, unknown>[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
 
   useEffect(() => {
     if (!user) return;

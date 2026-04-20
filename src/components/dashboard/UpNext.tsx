@@ -1,9 +1,10 @@
 import { MapPin, Clock, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { Lesson } from '@/types';
 
 interface UpNextProps {
-  lessons: Record<string, unknown>[];
+  lessons: Lesson[];
 }
 
 export function UpNext({ lessons }: UpNextProps) {

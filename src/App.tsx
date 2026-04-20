@@ -73,7 +73,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex">
       <Sidebar
-        onViewChange={(view: View) => { setCurrentView(view); setMobileSidebarOpen(false); }}
+        onViewChange={(view) => { setCurrentView(view as View); setMobileSidebarOpen(false); }}
         currentView={currentView}
         onShowPricing={() => setShowPricing(true)}
         mobileOpen={mobileSidebarOpen}
