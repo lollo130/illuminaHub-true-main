@@ -30,10 +30,11 @@ export function NotesTable({ notes, onRowClick, onDelete }: NotesTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {notes.map((note) => (
-            <TableRow 
-              key={note.id} 
-              className="border-zinc-800 hover:bg-emerald-500/[0.02] group transition-colors"
+          {notes.map((note, i) => (
+            <TableRow
+              key={note.id}
+              className="border-zinc-800 hover:bg-emerald-500/[0.02] group transition-colors animate-stagger-in"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               <TableCell className="py-4" onClick={() => onRowClick(note)}>
                 <div className="flex items-center gap-3">

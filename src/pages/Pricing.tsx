@@ -113,12 +113,12 @@ export default function Pricing({ onClose }: PricingProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-5xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">Scegli il tuo piano</h2>
           <p className="text-zinc-400">Potenzia il tuo studio con l'intelligenza artificiale</p>
-          <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white text-2xl">✕</button>
+          <button onClick={onClose} aria-label="Chiudi prezzi" className="absolute top-4 right-4 text-zinc-500 hover:text-white text-2xl leading-none">✕</button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -117,7 +117,7 @@ export function Sidebar({ onViewChange, currentView, onShowPricing, mobileOpen =
     else { toast.success('Tutte le note eliminate'); window.location.reload(); }
   };
 
-  const sidebarContent = (onClose?: () => void) => (
+  const sidebarContent = () => (
     <aside className="flex h-full w-64 flex-col bg-zinc-950 border-r border-zinc-800/80">
         {/* Workspace Switcher */}
         <div className="p-4">
@@ -175,6 +175,7 @@ export function Sidebar({ onViewChange, currentView, onShowPricing, mobileOpen =
           <div className="space-y-1 py-2">
             {navItems.map((item) => (
               <Button key={item.id} variant="ghost" onClick={() => onViewChange(item.id)}
+                aria-current={currentView === item.id ? 'page' : undefined}
                 className={cn('w-full justify-start gap-3 px-3 font-medium transition-all duration-200',
                   currentView === item.id ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/15 hover:text-emerald-300' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900'
                 )}>
@@ -398,7 +399,7 @@ export function Sidebar({ onViewChange, currentView, onShowPricing, mobileOpen =
             onClick={onMobileClose}
           />
           <div className="fixed left-0 top-0 z-50 h-screen w-64 lg:hidden animate-in slide-in-from-left duration-300">
-            {sidebarContent(onMobileClose)}
+            {sidebarContent()}
           </div>
         </>
       )}

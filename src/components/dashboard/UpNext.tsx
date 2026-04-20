@@ -19,8 +19,12 @@ export function UpNext({ lessons }: UpNextProps) {
 
   if (!nextLesson) {
     return (
-      <Card 
+      <Card
+        role="button"
+        tabIndex={0}
+        aria-label="Configura orario lezioni"
         onClick={navigateToTimetable}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigateToTimetable(); } }}
         className="bg-zinc-900 border-zinc-800 overflow-hidden group cursor-pointer hover:border-emerald-500/50 transition-all duration-300 h-full flex items-center justify-center"
       >
         <CardContent className="p-6 text-center">
@@ -35,8 +39,12 @@ export function UpNext({ lessons }: UpNextProps) {
   }
 
   return (
-    <Card 
+    <Card
+      role="button"
+      tabIndex={0}
+      aria-label={`Vai ai materiali di ${nextLesson.name}`}
       onClick={navigateToNotes}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigateToNotes(); } }}
       className="bg-zinc-900 border-zinc-800 overflow-hidden group cursor-pointer hover:border-emerald-500/50 transition-all duration-300"
     >
       <CardContent className="p-6">

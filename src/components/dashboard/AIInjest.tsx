@@ -21,16 +21,22 @@ export function AIInjest() {
   };
 
   return (
-    <Card 
+    <Card
+      role="button"
+      tabIndex={0}
+      aria-label="Carica file per analisi AI"
       onClick={() => fileInputRef.current?.click()}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="bg-zinc-900/50 border-2 border-dashed border-zinc-800 hover:border-emerald-500/30 hover:bg-emerald-500/[0.02] transition-all duration-300 group cursor-pointer relative overflow-hidden"
     >
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        className="hidden" 
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        aria-hidden="true"
+        tabIndex={-1}
         onChange={handleFileChange}
       />
       
@@ -39,7 +45,7 @@ export function AIInjest() {
           <Upload className={`transition-colors duration-300 ${isHovered ? 'text-emerald-400' : 'text-zinc-500'}`} size={28} />
         </div>
         
-        <h3 className="text-lg font-semibold text-white mb-1">Ingestione Rapida IA</h3>
+        <h3 className="text-lg font-semibold text-white mb-1">Carica Materiale</h3>
         <p className="text-zinc-500 text-sm max-w-xs">
           Trascina slide, PDF o registrazioni audio per generare guide di studio istantanee.
         </p>

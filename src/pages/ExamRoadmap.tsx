@@ -204,13 +204,18 @@ export default function ExamRoadmap() {
                 </span>
               </div>
               <div className="flex-1 bg-zinc-950/50 border border-zinc-900 rounded-2xl p-3 space-y-3 overflow-y-auto scrollbar-hide">
-                {exams.filter(e => e.status === column).map((exam) => (
-                  <ExamCard
+                {exams.filter(e => e.status === column).map((exam, i) => (
+                  <div
                     key={exam.id}
-                    exam={exam}
-                    onDelete={() => deleteExam(exam.id)}
-                    onMove={() => moveExam(exam.id)}
-                  />
+                    className="animate-stagger-in"
+                    style={{ animationDelay: `${i * 60}ms` }}
+                  >
+                    <ExamCard
+                      exam={exam}
+                      onDelete={() => deleteExam(exam.id)}
+                      onMove={() => moveExam(exam.id)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>

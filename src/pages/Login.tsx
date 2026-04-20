@@ -58,9 +58,9 @@ export default function Login() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/[0.07] blur-[140px] rounded-full" />
       <div className="absolute top-[40%] right-[20%] w-[20%] h-[20%] bg-teal-400/[0.04] blur-[100px] rounded-full" />
       
-      <div className="relative z-10 w-full max-w-md p-8">
+      <div className="relative z-10 w-full max-w-md p-8 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-500">
         <div className="glass border border-zinc-800/50 p-10 rounded-3xl shadow-2xl flex flex-col items-center text-center space-y-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 emerald-glow">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 emerald-glow animate-float">
             <Zap size={32} className="fill-current" />
           </div>
           

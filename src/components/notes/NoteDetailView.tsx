@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { X, FileText, BrainCircuit, Zap, BookOpen, ClipboardList, BarChart2, MessageSquare, GitCompare, Download, Target, Lock, ChevronRight, ChevronLeft, Check, RotateCcw, Send, Loader2, Calendar } from 'lucide-react';
+import { X, FileText, BrainCircuit, Zap, BookOpen, ClipboardList, BarChart2, MessageSquare, GitCompare, Download, Target, Lock, ChevronRight, ChevronLeft, ChevronDown, Check, RotateCcw, Send, Loader2, Calendar, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -257,20 +257,26 @@ function FlashcardsTab({ domande, concetti }: { domande: { q: string; a: string 
 
       <div
         onClick={() => setFlipped(f => !f)}
-        className="cursor-pointer min-h-[200px] rounded-2xl border border-zinc-800 bg-zinc-900 p-8 flex items-center justify-center text-center transition-all hover:border-emerald-500/30"
+        className="flip-card cursor-pointer min-h-[200px] rounded-2xl"
+        style={{ minHeight: '200px' }}
       >
-        {!flipped ? (
-          <div className="space-y-3">
-            <p className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold">Domanda</p>
-            <p className="text-white font-semibold text-base leading-relaxed">{card.front}</p>
-            <p className="text-[10px] text-zinc-600 mt-4">Clicca per vedere la risposta</p>
+        <div className={`flip-card-inner rounded-2xl ${flipped ? 'flipped' : ''}`} style={{ minHeight: '200px' }}>
+          {/* Front */}
+          <div className="flip-card-front rounded-2xl border border-zinc-800 bg-zinc-900 hover:border-emerald-500/30 transition-colors p-8 flex items-center justify-center text-center">
+            <div className="space-y-3">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold">Domanda</p>
+              <p className="text-white font-semibold text-base leading-relaxed">{card.front}</p>
+              <p className="text-[10px] text-zinc-600 mt-4">Clicca per girare</p>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-[10px] uppercase tracking-widest text-emerald-500/70 font-bold">Risposta</p>
-            <p className="text-zinc-300 text-sm leading-relaxed">{card.back}</p>
+          {/* Back */}
+          <div className="flip-card-back rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-8 flex items-center justify-center text-center">
+            <div className="space-y-3">
+              <p className="text-[10px] uppercase tracking-widest text-emerald-500/70 font-bold">Risposta</p>
+              <p className="text-zinc-300 text-sm leading-relaxed">{card.back}</p>
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {flipped && (
@@ -784,6 +790,16 @@ export function NoteDetailView({ note, allNotes = [], onClose, onShowPricing }: 
   useKaTeX();
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState('appunti');
+  const [aiMenuOpen, setAiMenuOpen] = useState(false);
+  const aiMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (aiMenuRef.current && !aiMenuRef.current.contains(e.target as Node)) setAiMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   if (!note) return null;
 
@@ -808,16 +824,19 @@ export function NoteDetailView({ note, allNotes = [], onClose, onShowPricing }: 
   const punti = puntiKey ? parseListItems(sections[puntiKey]) : [];
   const tabelleHtml = tabelleKey ? mdToHtml(sections[tabelleKey]) : '';
 
-  const tabs = [
+  const primaryTabs = [
     { id: 'appunti', label: 'Appunti', icon: FileText, plan: null },
     { id: 'flashcard', label: 'Flashcard', icon: Zap, plan: null },
+  ];
+  const aiTabs = [
     { id: 'quiz', label: 'Quiz', icon: BookOpen, plan: 'pro' },
     { id: 'piano', label: 'Piano Studio', icon: Calendar, plan: 'pro' },
     { id: 'chat', label: 'Chat', icon: MessageSquare, plan: 'pro' },
+    { id: 'esporta', label: 'Esporta PDF', icon: Download, plan: 'pro' },
     { id: 'confronta', label: 'Confronta', icon: GitCompare, plan: 'max' },
     { id: 'gap', label: 'Analisi Gap', icon: Target, plan: 'max' },
-    { id: 'esporta', label: 'Esporta PDF', icon: Download, plan: 'pro' },
   ];
+  const tabs = [...primaryTabs, ...aiTabs];
 
   const planOrder: Record<string, number> = { free: 0, pro: 1, max: 2 };
   const hasTabAccess = (requiredPlan: string | null) => {
@@ -848,10 +867,10 @@ export function NoteDetailView({ note, allNotes = [], onClose, onShowPricing }: 
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 px-4 pt-3 pb-0 border-b border-zinc-800 shrink-0 overflow-x-auto">
-        {tabs.map(tab => {
+      <div className="flex items-end gap-1 px-4 pt-3 pb-0 border-b border-zinc-800 shrink-0">
+        {/* Primary tabs */}
+        {primaryTabs.map(tab => {
           const Icon = tab.icon;
-          const accessible = hasTabAccess(tab.plan);
           return (
             <button
               key={tab.id}
@@ -860,15 +879,47 @@ export function NoteDetailView({ note, allNotes = [], onClose, onShowPricing }: 
             >
               <Icon size={13} />
               {tab.label}
-              {!accessible && <Lock size={10} className="text-zinc-600" />}
             </button>
           );
         })}
+
+        <div className="w-px h-5 bg-zinc-800 mx-1 self-center" />
+
+        {/* AI Tools dropdown */}
+        <div className="relative" ref={aiMenuRef}>
+          <button
+            onClick={() => setAiMenuOpen(o => !o)}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-all whitespace-nowrap border-b-2 ${aiTabs.some(t => t.id === activeTab) ? 'text-white border-emerald-500' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+          >
+            <Sparkles size={13} />
+            {aiTabs.find(t => t.id === activeTab)?.label ?? 'Strumenti AI'}
+            <ChevronDown size={11} className={`transition-transform duration-150 ${aiMenuOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {aiMenuOpen && (
+            <div className="absolute top-full left-0 mt-1 w-48 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-150">
+              {aiTabs.map(tab => {
+                const Icon = tab.icon;
+                const accessible = hasTabAccess(tab.plan);
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => { setActiveTab(tab.id); setAiMenuOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs transition-colors ${activeTab === tab.id ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'}`}
+                  >
+                    <Icon size={13} />
+                    <span className="flex-1 text-left">{tab.label}</span>
+                    {!accessible && <Lock size={10} className="text-zinc-600" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Body */}
       <ScrollArea className="flex-1">
-        <div className="p-6 sm:p-8">
+        <div key={activeTab} className="p-6 sm:p-8 animate-in fade-in slide-in-from-bottom-1 duration-200">
 
           {/* APPUNTI TAB */}
           {activeTab === 'appunti' && (

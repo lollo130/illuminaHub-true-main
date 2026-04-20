@@ -15,9 +15,12 @@ import {
 interface TopHeaderProps {
   onShowPricing: () => void;
   onMenuClick?: () => void;
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
+  currentView?: string;
 }
 
-export function TopHeader({ onShowPricing, onMenuClick }: TopHeaderProps) {
+export function TopHeader({ onShowPricing, onMenuClick, searchQuery = '', onSearchChange, currentView = 'dashboard' }: TopHeaderProps) {
   const { profile } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -118,6 +121,14 @@ export function TopHeader({ onShowPricing, onMenuClick }: TopHeaderProps) {
 
   const hasUnread = notifiche.length > 0;
 
+  const viewLabels: Record<string, string> = {
+    dashboard: 'Dashboard',
+    notes: 'AI Notes',
+    timetable: 'Timetable',
+    roadmap: 'Exam Roadmap',
+    analytics: 'Analytics',
+  };
+
   return (
     <header className="sticky top-0 z-30 w-full glass h-16 flex items-center justify-between px-8">
       <div className="flex items-center gap-3">
@@ -139,22 +150,23 @@ export function TopHeader({ onShowPricing, onMenuClick }: TopHeaderProps) {
               <ChevronRight size={14} className="text-zinc-700" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-zinc-100 font-medium">Dashboard</BreadcrumbPage>
+              <BreadcrumbPage className="text-zinc-100 font-medium">{viewLabels[currentView] ?? currentView}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
 
       <div className="flex items-center gap-6 flex-1 justify-end">
-        <div className="relative w-full max-w-md group">
+        <div className="relative w-full max-w-md group hidden md:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-emerald-400 transition-colors" size={16} />
           <Input
-            placeholder={`Cerca tra i tuoi appunti, ${profile?.nickname}...`}
-            className="bg-zinc-900/50 border-zinc-800 pl-10 pr-16 focus-visible:ring-emerald-500/50 focus-visible:border-emerald-500/50 transition-all"
+            aria-label="Cerca tra i tuoi appunti"
+            placeholder={profile?.nickname ? `Cerca tra i tuoi appunti, ${profile.nickname}...` : 'Cerca tra i tuoi appunti...'}
+            className="bg-zinc-900/50 border-zinc-800 pl-10 pr-4 focus-visible:ring-emerald-500/50 focus-visible:border-emerald-500/50 transition-all"
+            value={searchQuery}
+            onChange={e => onSearchChange?.(e.target.value)}
+            disabled={!onSearchChange}
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-800 text-[10px] text-zinc-500 font-mono">
-            <span className="text-xs">⌘</span>K
-          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -173,6 +185,8 @@ export function TopHeader({ onShowPricing, onMenuClick }: TopHeaderProps) {
               variant="ghost"
               size="icon"
               onClick={() => setNotifOpen(o => !o)}
+              aria-label={`Notifiche${hasUnread ? ' (nuove)' : ''}`}
+              aria-expanded={notifOpen}
               className="relative text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900"
             >
               <Bell size={20} />
@@ -183,7 +197,7 @@ export function TopHeader({ onShowPricing, onMenuClick }: TopHeaderProps) {
 
             {/* Dropdown notifiche */}
             {notifOpen && (
-              <div className="absolute right-0 top-12 w-80 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+              <div className="absolute right-0 top-12 w-80 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
                   <h3 className="text-sm font-bold text-white">Notifiche</h3>
                   <button onClick={() => setNotifOpen(false)} className="text-zinc-500 hover:text-zinc-300">

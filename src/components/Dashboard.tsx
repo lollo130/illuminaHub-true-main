@@ -34,6 +34,24 @@ export function Dashboard() {
 
   const isAppEmpty = loaded && exams.length === 0 && lessons.length === 0 && notes.length === 0;
 
+  if (!loaded) {
+    return (
+      <div className="px-6 py-8 md:px-8 space-y-8">
+        <div className="flex flex-col gap-1.5">
+          <div className="h-8 w-64 bg-zinc-800 rounded-lg animate-pulse" />
+          <div className="h-4 w-96 bg-zinc-800/60 rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+          <div className="md:col-span-8 h-48 bg-zinc-900 rounded-xl border border-zinc-800 animate-pulse" />
+          <div className="md:col-span-4 h-48 bg-zinc-900 rounded-xl border border-zinc-800 animate-pulse" />
+          <div className="md:col-span-12 h-28 bg-zinc-900 rounded-xl border border-zinc-800 animate-pulse" />
+          <div className="md:col-span-7 h-52 bg-zinc-900 rounded-xl border border-zinc-800 animate-pulse" />
+          <div className="md:col-span-5 h-52 bg-zinc-900 rounded-xl border border-zinc-800 animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
   if (isAppEmpty) {
     return (
       <div className="px-6 py-8 md:px-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -81,7 +81,11 @@ async function analyzeWithBackend(text: string, filename: string, token: string)
 }
 
 
-export default function AINotesEngine() {
+interface AINotesEngineProps {
+  searchQuery?: string;
+}
+
+export default function AINotesEngine({ searchQuery = '' }: AINotesEngineProps) {
   const { user, session, profile, refreshProfile } = useAuth();
   const [workspaces] = useLocalStorage<string[]>('illuminahub_workspaces', []);
   const [notes, setNotes] = useState<any[]>([]);
@@ -93,7 +97,6 @@ export default function AINotesEngine() {
   const [processingStep, setProcessingStep] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Carica note da Supabase all'avvio
   useEffect(() => {

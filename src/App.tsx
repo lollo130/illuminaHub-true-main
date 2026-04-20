@@ -22,6 +22,7 @@ function AppContent() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [showPricing, setShowPricing] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const handleViewChange = (e: any) => {
@@ -61,7 +62,7 @@ function AppContent() {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard />;
-      case 'notes': return <AINotesEngine />;
+      case 'notes': return <AINotesEngine searchQuery={searchQuery} />;
       case 'timetable': return <Timetable />;
       case 'roadmap': return <ExamRoadmap />;
       default: return <Dashboard />;
@@ -78,9 +79,17 @@ function AppContent() {
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
       <main className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-        <TopHeader onShowPricing={() => setShowPricing(true)} onMenuClick={() => setMobileSidebarOpen(true)} />
+        <TopHeader
+          onShowPricing={() => setShowPricing(true)}
+          onMenuClick={() => setMobileSidebarOpen(true)}
+          currentView={currentView}
+          searchQuery={currentView === 'notes' ? searchQuery : ''}
+          onSearchChange={currentView === 'notes' ? setSearchQuery : undefined}
+        />
         <div className="flex-1 overflow-y-auto">
-          {renderView()}
+          <div key={currentView} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {renderView()}
+          </div>
         </div>
       </main>
       {showPricing && <Pricing onClose={() => setShowPricing(false)} />}
