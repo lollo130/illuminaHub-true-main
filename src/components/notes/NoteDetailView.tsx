@@ -547,8 +547,8 @@ function ConfrontaTab({ currentNote, allNotes }: { currentNote: Note; allNotes: 
     if (!otherNote) return;
     setLoading(true);
 
-    const content1 = currentNote.content.replace(/<<<CHARTS>>>[\s\S]*?<<<END_CHARTS>>>/g, '').substring(0, 10000);
-    const content2 = otherNote.content.replace(/<<<CHARTS>>>[\s\S]*?<<<END_CHARTS>>>/g, '').substring(0, 10000);
+    const content1 = (currentNote.content ?? '').replace(/<<<CHARTS>>>[\s\S]*?<<<END_CHARTS>>>/g, '').substring(0, 10000);
+    const content2 = (otherNote.content ?? '').replace(/<<<CHARTS>>>[\s\S]*?<<<END_CHARTS>>>/g, '').substring(0, 10000);
 
     try {
       const response = await fetch('/.netlify/functions/gemini-proxy', {
