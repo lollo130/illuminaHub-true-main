@@ -36,10 +36,10 @@ export function Dashboard() {
 
   if (isAppEmpty) {
     return (
-      <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Benvenuto su IlluminaHub</h1>
-          <p className="text-zinc-500">Il tuo centro di comando accademico è pronto. Iniziamo a configurare il tuo spazio.</p>
+      <div className="px-6 py-8 md:px-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Benvenuto su IlluminaHub</h1>
+          <p className="text-zinc-500 text-sm">Il tuo centro di comando accademico è pronto. Iniziamo a configurare il tuo spazio.</p>
         </div>
         <div className="mt-12">
           <EmptyState 
@@ -55,26 +55,26 @@ export function Dashboard() {
   }
 
   return (
-    <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Bentornato, {profile?.nickname || 'Studente'}</h1>
-        <p className="text-zinc-500">Il tuo spazio di lavoro è sincronizzato e pronto per le sessioni di oggi.</p>
+    <div className="px-6 py-8 md:px-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-screen-xl">
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Bentornato, {profile?.nickname || 'Studente'}</h1>
+        <p className="text-zinc-500 text-sm">Il tuo spazio di lavoro è sincronizzato e pronto per le sessioni di oggi.</p>
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+        <div className="md:col-span-8 lg:col-span-8">
           <UpNext lessons={lessons} />
         </div>
-        <div className="col-span-12 lg:col-span-4">
+        <div className="md:col-span-4 lg:col-span-4">
           <FocusMode />
         </div>
-        <div className="col-span-12">
+        <div className="md:col-span-12">
           <AIInjest />
         </div>
-        <div className="col-span-12 lg:col-span-7">
+        <div className="md:col-span-7 lg:col-span-7">
           <ExamCountdown exams={exams} />
         </div>
-        <div className="col-span-12 lg:col-span-5">
+        <div className="md:col-span-5 lg:col-span-5">
           <ActivityFeed />
         </div>
       </div>

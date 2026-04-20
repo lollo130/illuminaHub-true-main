@@ -21,6 +21,7 @@ function AppContent() {
   useExamNotifications(user?.id);
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [showPricing, setShowPricing] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const handleViewChange = (e: any) => {
@@ -48,7 +49,7 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
       </div>
     );
@@ -68,14 +69,16 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex">
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex">
       <Sidebar
-        onViewChange={(view: View) => setCurrentView(view)}
+        onViewChange={(view: View) => { setCurrentView(view); setMobileSidebarOpen(false); }}
         currentView={currentView}
         onShowPricing={() => setShowPricing(true)}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
-      <main className="flex-1 ml-64 flex flex-col min-h-screen">
-        <TopHeader onShowPricing={() => setShowPricing(true)} />
+      <main className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+        <TopHeader onShowPricing={() => setShowPricing(true)} onMenuClick={() => setMobileSidebarOpen(true)} />
         <div className="flex-1 overflow-y-auto">
           {renderView()}
         </div>

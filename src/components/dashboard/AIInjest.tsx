@@ -36,7 +36,7 @@ export function AIInjest() {
       
       <CardContent className="p-8 flex flex-col items-center justify-center text-center relative z-10">
         <div className={`h-16 w-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-4 transition-all duration-500 shadow-2xl ${isHovered ? 'scale-110 border-emerald-500/50 rotate-3' : ''}`}>
-          <Upload className={`${isHovered ? 'text-emerald-400 animate-bounce' : 'text-zinc-500'}`} size={28} />
+          <Upload className={`transition-colors duration-300 ${isHovered ? 'text-emerald-400' : 'text-zinc-500'}`} size={28} />
         </div>
         
         <h3 className="text-lg font-semibold text-white mb-1">Ingestione Rapida IA</h3>

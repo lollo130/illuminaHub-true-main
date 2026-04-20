@@ -47,9 +47,11 @@ interface SidebarProps {
   onViewChange: (view: any) => void;
   currentView: string;
   onShowPricing: () => void;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarProps) {
+export function Sidebar({ onViewChange, currentView, onShowPricing, mobileOpen = false, onMobileClose }: SidebarProps) {
   const { profile, user, signOut, refreshProfile } = useAuth();
   const [workspaces, setWorkspaces] = useLocalStorage<string[]>('illuminahub_workspaces', []);
   const [activeWorkspace, setActiveWorkspace] = useLocalStorage<string>('illuminahub_active_workspace', '');
@@ -115,9 +117,8 @@ export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarPro
     else { toast.success('Tutte le note eliminate'); window.location.reload(); }
   };
 
-  return (
-    <>
-      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-zinc-800 bg-black flex flex-col">
+  const sidebarContent = (onClose?: () => void) => (
+    <aside className="flex h-full w-64 flex-col bg-zinc-950 border-r border-zinc-800/80">
         {/* Workspace Switcher */}
         <div className="p-4">
           <DropdownMenu>
@@ -250,7 +251,10 @@ export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarPro
           </DropdownMenu>
         </div>
       </aside>
+  );
 
+  const modals = (
+    <>
       {/* MODAL PROFILO */}
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
         <DialogContent className="bg-zinc-950 border-zinc-800 text-white sm:max-w-md">
@@ -376,6 +380,30 @@ export function Sidebar({ onViewChange, currentView, onShowPricing }: SidebarPro
           </div>
         </DialogContent>
       </Dialog>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop: fixed sidebar */}
+      <div className="hidden lg:block fixed left-0 top-0 z-40 h-screen w-64">
+        {sidebarContent()}
+      </div>
+
+      {/* Mobile: overlay + slide-in */}
+      {mobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            onClick={onMobileClose}
+          />
+          <div className="fixed left-0 top-0 z-50 h-screen w-64 lg:hidden animate-in slide-in-from-left duration-300">
+            {sidebarContent(onMobileClose)}
+          </div>
+        </>
+      )}
+
+      {modals}
     </>
   );
 }

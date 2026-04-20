@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Zap, ChevronRight, X, AlertTriangle, CheckCircle, Info, Crown } from 'lucide-react';
+import { Search, Bell, Zap, ChevronRight, X, AlertTriangle, CheckCircle, Info, Crown, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
@@ -14,9 +14,10 @@ import {
 
 interface TopHeaderProps {
   onShowPricing: () => void;
+  onMenuClick?: () => void;
 }
 
-export function TopHeader({ onShowPricing }: TopHeaderProps) {
+export function TopHeader({ onShowPricing, onMenuClick }: TopHeaderProps) {
   const { profile } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -119,8 +120,17 @@ export function TopHeader({ onShowPricing }: TopHeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 w-full glass h-16 flex items-center justify-between px-8">
-      <div className="flex items-center gap-4">
-        <Breadcrumb>
+      <div className="flex items-center gap-3">
+        {/* Mobile hamburger */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuClick}
+          className="lg:hidden text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900"
+        >
+          <Menu size={20} />
+        </Button>
+        <Breadcrumb className="hidden sm:flex">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/" className="text-zinc-500 hover:text-zinc-300">IlluminaHub</BreadcrumbLink>

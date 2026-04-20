@@ -19,12 +19,12 @@ export function ActivityFeed() {
       .then(({ data }) => setNotes(data || []));
   }, [user]);
 
-  const activities = notes.map(note => ({
+  const activities = notes.map((note, i) => ({
     type: 'note',
     title: `Documento elaborato: ${note.title}`,
     time: new Date(note.created_at).toLocaleDateString('it-IT'),
     icon: FileText,
-    color: 'text-emerald-400'
+    color: i === 0 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-700/40' : 'text-sky-400 bg-sky-500/10 border-sky-700/40',
   }));
 
   return (
@@ -42,7 +42,7 @@ export function ActivityFeed() {
           <div className="space-y-5">
             {activities.map((activity, i) => (
               <div key={i} className="flex gap-3 group">
-                <div className={`h-8 w-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center ${activity.color}`}>
+                <div className={`h-8 w-8 rounded-full border flex items-center justify-center ${activity.color}`}>
                   <activity.icon size={14} />
                 </div>
                 <div className="flex flex-col min-w-0">

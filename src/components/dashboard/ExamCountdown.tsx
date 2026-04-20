@@ -36,8 +36,24 @@ export function ExamCountdown({ exams }: ExamCountdownProps) {
     );
   }
 
+  const getDaysLeft = () => {
+    if (!nextExam.date) return null;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const examDate = new Date(nextExam.date); examDate.setHours(0,0,0,0);
+    return Math.ceil((examDate.getTime() - today.getTime()) / (1000*60*60*24));
+  };
+  const daysLeft = getDaysLeft();
+  const urgency = daysLeft === null ? 'none' : daysLeft <= 7 ? 'critical' : daysLeft <= 14 ? 'warning' : 'ok';
+  const urgencyColors = {
+    critical: { box: 'bg-rose-500/10 border-rose-500/30', text: 'text-rose-400', sub: 'text-rose-500/60', bar: 'bg-rose-500', progress: 'text-rose-400', card: 'border-rose-500/20' },
+    warning:  { box: 'bg-amber-500/10 border-amber-500/30', text: 'text-amber-400', sub: 'text-amber-500/60', bar: 'bg-amber-500', progress: 'text-amber-400', card: 'border-amber-500/20' },
+    ok:       { box: 'bg-emerald-500/10 border-emerald-500/20', text: 'text-emerald-400', sub: 'text-emerald-500/60', bar: 'bg-emerald-500', progress: 'text-emerald-400', card: 'border-zinc-800' },
+    none:     { box: 'bg-emerald-500/10 border-emerald-500/20', text: 'text-emerald-400', sub: 'text-emerald-500/60', bar: 'bg-emerald-500', progress: 'text-emerald-400', card: 'border-zinc-800' },
+  };
+  const uc = urgencyColors[urgency];
+
   return (
-    <Card className="bg-zinc-900 border-zinc-800 h-full">
+    <Card className={`bg-zinc-900 ${uc.card} h-full transition-colors duration-500`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-zinc-400">Prossimo Esame</CardTitle>
       </CardHeader>
@@ -50,26 +66,23 @@ export function ExamCountdown({ exams }: ExamCountdownProps) {
               <span>{nextExam.date ? new Date(nextExam.date).toLocaleDateString('it-IT') : 'Data da definire'}</span>
             </div>
           </div>
-          <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center">
-            {(() => {
-              if (!nextExam.date) return <span className="text-emerald-400 text-xl font-bold leading-none">?</span>;
-              const today = new Date(); today.setHours(0,0,0,0);
-              const examDate = new Date(nextExam.date); examDate.setHours(0,0,0,0);
-              const days = Math.ceil((examDate.getTime() - today.getTime()) / (1000*60*60*24));
-              return <span className="text-emerald-400 text-xl font-bold leading-none">{days >= 0 ? days : 0}</span>;
-            })()}
-            <span className="text-emerald-500/60 text-[8px] font-bold uppercase tracking-tighter">Giorni</span>
+          <div className={`h-14 w-14 rounded-2xl ${uc.box} flex flex-col items-center justify-center transition-colors duration-500`}>
+            {daysLeft === null
+              ? <span className={`${uc.text} text-xl font-bold leading-none`}>?</span>
+              : <span className={`${uc.text} text-xl font-bold leading-none`}>{daysLeft >= 0 ? daysLeft : 0}</span>
+            }
+            <span className={`${uc.sub} text-[8px] font-bold uppercase tracking-tighter`}>Giorni</span>
           </div>
         </div>
 
         <div className="space-y-2">
           <div className="flex justify-between text-xs font-medium">
             <span className="text-zinc-400">Preparazione</span>
-            <span className="text-emerald-400">{nextExam.progress}%</span>
+            <span className={uc.progress}>{nextExam.progress}%</span>
           </div>
           <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-emerald-500 transition-all duration-1000" 
+            <div
+              className={`h-full ${uc.bar} transition-all duration-1000`}
               style={{ width: `${nextExam.progress}%` }}
             />
           </div>
