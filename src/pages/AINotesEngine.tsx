@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FileText, Plus, Upload, Loader2, Sparkles, Search } from 'lucide-react';
+import { FileText, Plus, Upload, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { NotesTable } from '@/components/notes/NotesTable';
@@ -218,16 +218,6 @@ export default function AINotesEngine({ searchQuery = '' }: AINotesEngineProps) 
           <p className="text-zinc-500">Carica un PDF e Gemini AI lo trasforma in una guida di studio.</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-            <input
-              type="text"
-              placeholder="Cerca nelle note..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 w-56 transition-all"
-            />
-          </div>
           <Button onClick={() => setIsAddOpen(true)} className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400 font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)]">
             <Plus size={18} className="mr-2" /> Nuovo Appunto
           </Button>
