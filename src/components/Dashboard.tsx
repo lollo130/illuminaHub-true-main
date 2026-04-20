@@ -11,9 +11,9 @@ import { supabase } from '@/lib/supabase';
 
 export function Dashboard() {
   const { profile, user } = useAuth();
-  const [exams, setExams] = useState<any[]>([]);
-  const [lessons, setLessons] = useState<any[]>([]);
-  const [notes, setNotes] = useState<any[]>([]);
+  const [exams, setExams] = useState<Record<string, unknown>[]>([]);
+  const [lessons, setLessons] = useState<Record<string, unknown>[]>([]);
+  const [notes, setNotes] = useState<Record<string, unknown>[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {

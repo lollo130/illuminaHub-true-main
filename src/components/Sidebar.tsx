@@ -44,7 +44,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 
 interface SidebarProps {
-  onViewChange: (view: any) => void;
+  onViewChange: (view: string) => void;
   currentView: string;
   onShowPricing: () => void;
   mobileOpen?: boolean;

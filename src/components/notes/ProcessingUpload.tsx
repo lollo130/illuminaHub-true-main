@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Upload, Sparkles, FileText, CheckCircle2, Loader2 } from 'lucide-react';
+import { Sparkles, CheckCircle2, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export function ProcessingUpload() {

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Upload, FileText, Music, FileJson, Loader2 } from 'lucide-react';
+import { Upload, FileText, Music, FileJson } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 interface ExamCountdownProps {
-  exams: any[];
+  exams: Record<string, unknown>[];
 }
 
 export function ExamCountdown({ exams }: ExamCountdownProps) {

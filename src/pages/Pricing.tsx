@@ -105,8 +105,8 @@ export default function Pricing({ onClose }: PricingProps) {
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else throw new Error(data.error);
-    } catch (err: any) {
-      toast.error('Errore: ' + err.message);
+    } catch (err: unknown) {
+      toast.error('Errore: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setLoading(null);
     }

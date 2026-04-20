@@ -42,9 +42,9 @@ export default function Login() {
       });
       
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Detailed Login Error:', error);
-      toast.error(error.message || 'Errore durante l\'accesso con Google');
+      toast.error(error instanceof Error ? error.message : 'Errore durante l\'accesso con Google');
     } finally {
       // Nota: setIsLoading(false) non verrà quasi mai visto se il redirect ha successo
       setIsLoading(false);

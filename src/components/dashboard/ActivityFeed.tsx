@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export function ActivityFeed() {
   const { user } = useAuth();
-  const [notes, setNotes] = useState<any[]>([]);
+  const [notes, setNotes] = useState<Record<string, unknown>[]>([]);
 
   useEffect(() => {
     if (!user) return;

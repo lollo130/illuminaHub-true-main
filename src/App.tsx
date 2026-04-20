@@ -25,8 +25,9 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const handleViewChange = (e: any) => {
-      if (e.detail) setCurrentView(e.detail as View);
+    const handleViewChange = (e: Event) => {
+      const detail = (e as CustomEvent<View>).detail;
+      if (detail) setCurrentView(detail);
     };
     window.addEventListener('change-view', handleViewChange);
     const handleShowPricing = () => setShowPricing(true);

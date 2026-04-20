@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GraduationCap, Target, Plus, LayoutGrid, Trash2, ArrowRight, Clock, MapPin, Building2, Loader2 } from 'lucide-react';
+import { Plus, LayoutGrid, Trash2, ArrowRight, Clock, MapPin, Building2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { EmptyState } from '@/components/shared/EmptyState';

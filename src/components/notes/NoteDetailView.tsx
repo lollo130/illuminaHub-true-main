@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { X, FileText, BrainCircuit, Zap, BookOpen, ClipboardList, BarChart2, MessageSquare, GitCompare, Download, Target, Lock, ChevronRight, ChevronLeft, ChevronDown, Check, RotateCcw, Send, Loader2, Calendar, Sparkles } from 'lucide-react';
+import { X, FileText, BrainCircuit, Zap, BookOpen, ClipboardList, BarChart2, MessageSquare, GitCompare, Download, Target, Lock, ChevronDown, Check, RotateCcw, Send, Loader2, Calendar, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -14,8 +14,8 @@ import {
 const CHART_COLORS = ['#10b981', '#8b5cf6', '#f59e0b', '#3b82f6', '#ef4444', '#06b6d4', '#ec4899'];
 
 interface NoteDetailViewProps {
-  note: any;
-  allNotes?: any[];
+  note: Record<string, unknown>;
+  allNotes?: Record<string, unknown>[];
   onClose: () => void;
   onShowPricing?: () => void;
 }
@@ -39,6 +39,7 @@ function useKaTeX() {
 
 function renderKaTeX(el: HTMLElement) {
   const try_ = (n = 0) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fn = (window as any).renderMathInElement;
     if (fn) fn(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }, { left: '\\(', right: '\\)', display: false }, { left: '\\[', right: '\\]', display: true }], throwOnError: false });
     else if (n < 20) setTimeout(() => try_(n + 1), 300);
@@ -114,7 +115,7 @@ function splitSections(content: string) {
   return result;
 }
 
-function extractCharts(content: string): any[] {
+function extractCharts(content: string): Record<string, unknown>[] {
   try {
     const match = content.match(/<<<CHARTS>>>([\s\S]*?)<<<END_CHARTS>>>/);
     if (!match) return [];
@@ -145,7 +146,7 @@ function parseQA(text: string): { q: string; a: string }[] {
 }
 
 // ─── Chart widget ─────────────────────────────────────────────────────────────
-function ChartWidget({ chart }: { chart: any }) {
+function ChartWidget({ chart }: { chart: Record<string, unknown> }) {
   if (!chart?.data?.length) return null;
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 space-y-3">
@@ -161,7 +162,7 @@ function ChartWidget({ chart }: { chart: any }) {
             <YAxis tick={{ fill: '#a1a1aa', fontSize: 10 }} domain={[0, 100]} />
             <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, color: '#fff' }} />
             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-              {chart.data.map((_: any, i: number) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+              {(chart.data as unknown[]).map((_: unknown, i: number) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -180,7 +181,7 @@ function ChartWidget({ chart }: { chart: any }) {
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={chart.data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} labelLine={false}>
-              {chart.data.map((_: any, i: number) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+              {(chart.data as unknown[]).map((_: unknown, i: number) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Pie>
             <Legend wrapperStyle={{ fontSize: 11, color: '#a1a1aa' }} />
             <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, color: '#fff' }} />
@@ -531,7 +532,7 @@ Formato: usa ## Giorno X - [Data] per ogni giorno, poi elenca gli argomenti con 
 }
 
 // ─── CONFRONTA Tab ────────────────────────────────────────────────────────────
-function ConfrontaTab({ currentNote, allNotes }: { currentNote: any; allNotes: any[] }) {
+function ConfrontaTab({ currentNote, allNotes }: { currentNote: Record<string, unknown>; allNotes: Record<string, unknown>[] }) {
   const { session } = useAuth();
   const [selectedNoteId, setSelectedNoteId] = useState('');
   const [confronto, setConfronto] = useState('');
@@ -627,7 +628,13 @@ Rispondi in italiano con sezioni chiare.`,
 }
 
 // ─── ESPORTA Tab ──────────────────────────────────────────────────────────────
-function EsportaTab({ note, sections, domande, concetti, punti }: any) {
+function EsportaTab({ note, sections, domande, concetti, punti }: {
+  note: Record<string, unknown>;
+  sections: Record<string, string>;
+  domande: { q: string; a: string }[];
+  concetti: { label: string; desc: string }[];
+  punti: { label: string; desc: string }[];
+}) {
   const exportPDF = () => {
     const printContent = `
       <html><head>
@@ -649,11 +656,11 @@ function EsportaTab({ note, sections, domande, concetti, punti }: any) {
       
       ${sections.riassunto ? `<h2>📝 Riassunto</h2><p>${sections.riassunto.replace(/\n/g, '<br>')}</p>` : ''}
       
-      ${domande.length > 0 ? `<h2>❓ Domande di Studio</h2>${domande.map((d: any, i: number) => `<div class="qa"><div class="q">Domanda ${i + 1}: ${d.q}</div>${d.a ? `<div class="a">${d.a}</div>` : ''}</div>`).join('')}` : ''}
-      
-      ${concetti.length > 0 ? `<h2>🔑 Concetti Chiave</h2><ul>${concetti.map((c: any) => `<li><strong>${c.label ? c.label + ': ' : ''}</strong>${c.desc}</li>`).join('')}</ul>` : ''}
-      
-      ${punti.length > 0 ? `<h2>✅ Punti da Ricordare</h2><ul>${punti.map((p: any) => `<li><strong>${p.label ? p.label + ': ' : ''}</strong>${p.desc}</li>`).join('')}</ul>` : ''}
+      ${domande.length > 0 ? `<h2>❓ Domande di Studio</h2>${domande.map((d, i) => `<div class="qa"><div class="q">Domanda ${i + 1}: ${d.q}</div>${d.a ? `<div class="a">${d.a}</div>` : ''}</div>`).join('')}` : ''}
+
+      ${concetti.length > 0 ? `<h2>🔑 Concetti Chiave</h2><ul>${concetti.map((c) => `<li><strong>${c.label ? c.label + ': ' : ''}</strong>${c.desc}</li>`).join('')}</ul>` : ''}
+
+      ${punti.length > 0 ? `<h2>✅ Punti da Ricordare</h2><ul>${punti.map((p) => `<li><strong>${p.label ? p.label + ': ' : ''}</strong>${p.desc}</li>`).join('')}</ul>` : ''}
       
       </body></html>
     `;
@@ -836,8 +843,6 @@ export function NoteDetailView({ note, allNotes = [], onClose, onShowPricing }: 
     { id: 'confronta', label: 'Confronta', icon: GitCompare, plan: 'max' },
     { id: 'gap', label: 'Analisi Gap', icon: Target, plan: 'max' },
   ];
-  const tabs = [...primaryTabs, ...aiTabs];
-
   const planOrder: Record<string, number> = { free: 0, pro: 1, max: 2 };
   const hasTabAccess = (requiredPlan: string | null) => {
     if (!requiredPlan) return true;

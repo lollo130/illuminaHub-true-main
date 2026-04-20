@@ -11,8 +11,8 @@ import { FileText, Trash2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NotesTableProps {
-  notes: any[];
-  onRowClick: (note: any) => void;
+  notes: Record<string, unknown>[];
+  onRowClick: (note: Record<string, unknown>) => void;
   onDelete: (id: string) => void;
 }
 

@@ -30,6 +30,7 @@ async function extractTextFromPDF(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const runExtraction = async () => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pdfjsLib = (window as any).pdfjsLib;
         pdfjsLib.GlobalWorkerOptions.workerSrc =
           'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -40,7 +41,7 @@ async function extractTextFromPDF(file: File): Promise<string> {
         for (let i = 1; i <= maxPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          const pageText = textContent.items.map((item: { str: string }) => item.str).join(' ');
           fullText += pageText + '\n';
         }
         resolve(fullText.trim());
@@ -49,6 +50,7 @@ async function extractTextFromPDF(file: File): Promise<string> {
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).pdfjsLib) {
       runExtraction();
     } else {
@@ -88,9 +90,9 @@ interface AINotesEngineProps {
 export default function AINotesEngine({ searchQuery = '' }: AINotesEngineProps) {
   const { user, session, profile, refreshProfile } = useAuth();
   const [workspaces] = useLocalStorage<string[]>('illuminahub_workspaces', []);
-  const [notes, setNotes] = useState<any[]>([]);
+  const [notes, setNotes] = useState<Record<string, unknown>[]>([]);
   const [loadingNotes, setLoadingNotes] = useState(true);
-  const [selectedNote, setSelectedNote] = useState<any>(null);
+  const [selectedNote, setSelectedNote] = useState<Record<string, unknown> | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -188,9 +190,9 @@ export default function AINotesEngine({ searchQuery = '' }: AINotesEngineProps) 
       setSelectedSubject('');
       await refreshProfile();
       toast.success('Documento analizzato e salvato! 🎉');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Errore analisi:', error);
-      toast.error(`Errore: ${error.message}`);
+      toast.error(`Errore: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setUploading(false);
     }
   };

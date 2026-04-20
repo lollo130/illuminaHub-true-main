@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface UpNextProps {
-  lessons: any[];
+  lessons: Record<string, unknown>[];
 }
 
 export function UpNext({ lessons }: UpNextProps) {
