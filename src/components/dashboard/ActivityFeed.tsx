@@ -23,7 +23,7 @@ export function ActivityFeed() {
   const activities = notes.map((note, i) => ({
     type: 'note',
     title: `Documento elaborato: ${note.title}`,
-    time: new Date(note.created_at).toLocaleDateString('it-IT'),
+    time: note.created_at ? new Date(note.created_at).toLocaleDateString('it-IT') : '',
     icon: FileText,
     color: i === 0 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-700/40' : 'text-sky-400 bg-sky-500/10 border-sky-700/40',
   }));

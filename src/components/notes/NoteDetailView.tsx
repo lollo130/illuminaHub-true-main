@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import type { Note } from '@/types';
+import type { Note, ChartItem } from '@/types';
 import {
   BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
@@ -116,7 +116,7 @@ function splitSections(content: string) {
   return result;
 }
 
-function extractCharts(content: string): Record<string, unknown>[] {
+function extractCharts(content: string): ChartItem[] {
   try {
     const match = content.match(/<<<CHARTS>>>([\s\S]*?)<<<END_CHARTS>>>/);
     if (!match) return [];
@@ -147,7 +147,7 @@ function parseQA(text: string): { q: string; a: string }[] {
 }
 
 // ─── Chart widget ─────────────────────────────────────────────────────────────
-function ChartWidget({ chart }: { chart: Record<string, unknown> }) {
+function ChartWidget({ chart }: { chart: ChartItem }) {
   if (!chart?.data?.length) return null;
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 space-y-3">
@@ -163,7 +163,7 @@ function ChartWidget({ chart }: { chart: Record<string, unknown> }) {
             <YAxis tick={{ fill: '#a1a1aa', fontSize: 10 }} domain={[0, 100]} />
             <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, color: '#fff' }} />
             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-              {(chart.data as unknown[]).map((_: unknown, i: number) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+              {chart.data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -182,7 +182,7 @@ function ChartWidget({ chart }: { chart: Record<string, unknown> }) {
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={chart.data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} labelLine={false}>
-              {(chart.data as unknown[]).map((_: unknown, i: number) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+              {chart.data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Pie>
             <Legend wrapperStyle={{ fontSize: 11, color: '#a1a1aa' }} />
             <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, color: '#fff' }} />

@@ -1,9 +1,9 @@
 export interface Note {
   id: string;
   title: string;
-  subject: string;
-  date: string;
-  content: string;
+  subject?: string;
+  date?: string;
+  content?: string;
   status?: string;
   type?: string;
   size?: string;
@@ -27,4 +27,11 @@ export interface Lesson {
   start_hour?: number;
   duration?: number;
   user_id?: string;
+}
+
+export interface ChartItem {
+  type: string;
+  title: string;
+  description?: string;
+  data: Record<string, unknown>[];
 }
