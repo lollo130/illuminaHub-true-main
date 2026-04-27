@@ -1,19 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
 import { Dashboard } from './components/Dashboard';
-import AINotesEngine from './pages/AINotesEngine';
-import Timetable from './pages/Timetable';
-import ExamRoadmap from './pages/ExamRoadmap';
-import GradeAnalytics from './pages/GradeAnalytics';
 import Login from './pages/Login';
-import Onboarding from './pages/Onboarding';
-import Pricing from './pages/Pricing';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useExamNotifications } from './hooks/useExamNotifications';
 import { OnboardingTour } from './components/OnboardingTour';
 import { Toaster } from 'sonner';
 import { toast } from 'sonner';
+
+const AINotesEngine = lazy(() => import('./pages/AINotesEngine'));
+const Timetable     = lazy(() => import('./pages/Timetable'));
+const ExamRoadmap   = lazy(() => import('./pages/ExamRoadmap'));
+const GradeAnalytics = lazy(() => import('./pages/GradeAnalytics'));
+const Pricing       = lazy(() => import('./pages/Pricing'));
+const Onboarding    = lazy(() => import('./pages/Onboarding'));
+
+function PageSpinner() {
+  return (
+    <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+      <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+    </div>
+  );
+}
 
 type View = 'dashboard' | 'notes' | 'timetable' | 'roadmap' | 'analytics';
 
@@ -59,16 +68,20 @@ function AppContent() {
   }
 
   if (!user) return <Login />;
-  if (!profile) return <Onboarding />;
+  if (!profile) return (
+    <Suspense fallback={<PageSpinner />}>
+      <Onboarding />
+    </Suspense>
+  );
 
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard />;
-      case 'notes': return <AINotesEngine searchQuery={searchQuery} />;
+      case 'notes':     return <AINotesEngine searchQuery={searchQuery} />;
       case 'timetable': return <Timetable />;
-      case 'roadmap': return <ExamRoadmap />;
+      case 'roadmap':   return <ExamRoadmap />;
       case 'analytics': return <GradeAnalytics />;
-      default: return <Dashboard />;
+      default:          return <Dashboard />;
     }
   };
 
@@ -90,12 +103,16 @@ function AppContent() {
           onSearchChange={currentView === 'notes' ? setSearchQuery : undefined}
         />
         <div className="flex-1 overflow-y-auto">
-          <div key={currentView} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            {renderView()}
-          </div>
+          <Suspense fallback={<PageSpinner />}>
+            <div key={currentView} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {renderView()}
+            </div>
+          </Suspense>
         </div>
       </main>
-      {showPricing && <Pricing onClose={() => setShowPricing(false)} />}
+      <Suspense fallback={null}>
+        {showPricing && <Pricing onClose={() => setShowPricing(false)} />}
+      </Suspense>
       <OnboardingTour />
     </div>
   );

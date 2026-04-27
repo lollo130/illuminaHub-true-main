@@ -9,7 +9,28 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  optimizeDeps: {
-    exclude: ['lucide-react'],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react':    ['react', 'react-dom'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-ui':       [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-select',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-slot',
+          ],
+          'vendor-charts':   ['recharts'],
+          'vendor-markdown': ['react-markdown', 'remark-math', 'rehype-katex', 'rehype-raw'],
+        },
+      },
+    },
+    // Soglia warning chunk: 800kb (default 500)
+    chunkSizeWarningLimit: 800,
   },
 });
