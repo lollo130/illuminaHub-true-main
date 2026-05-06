@@ -36,3 +36,7 @@ Thumbs.db
 
 # Claude local settings
 .claude/settings.local.json
+.claude/worktrees/
+
+# TypeScript build cache
+*.tsbuildinfo
